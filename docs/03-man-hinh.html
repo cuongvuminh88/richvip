@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>03 · Màn hình — RichVip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="brand" href="index.html">RichVip</a>
+      <nav class="nav" aria-label="Tài liệu">
+        <a href="index.html">Mục lục</a>
+        <a href="01-tong-quan.html">Tổng quan</a>
+        <a href="02-chuc-nang.html">Chức năng</a>
+        <a href="03-man-hinh.html" aria-current="page">Màn hình</a>
+        <a href="04-quy-tac-du-lieu.html">Dữ liệu</a>
+        <a href="05-ke-hoach-test.html">Kế hoạch test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div class="eyebrow">03 · Màn hình</div>
+      <h1>Màn hình &amp; giao diện</h1>
+      <p class="lead">Game có một trang với ba lớp hiển thị: màn hình chơi, hộp thoại vay, và màn hình nợ. Khung phác thảo dưới đây chỉ thể hiện bố cục, không phải thiết kế cuối.</p>
+    </div>
+
+    <nav class="toc" aria-label="Trong trang này">
+      <strong>Trong trang này</strong>
+      <ol>
+        <li><a href="#s1">Màn hình chơi</a></li>
+        <li><a href="#s2">Hộp thoại vay</a></li>
+        <li><a href="#s3">Màn hình nợ</a></li>
+        <li><a href="#luong">Luồng chuyển màn hình</a></li>
+        <li><a href="#chung">Quy định chung</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="s1"><span class="num">S-01</span>Màn hình chơi</h2>
+    <div class="wire" aria-label="Phác thảo màn hình chơi">
+      <div class="w-row"><div class="w-box w-gold">RichVip</div><div class="w-box" style="flex:0 0 48px">🔊</div></div>
+      <div class="w-row">
+        <div class="w-box w-gold">Số dư<br><b>1.500.000 đ</b></div>
+        <div class="w-box">Đã vay<br><b>1 / 3</b></div>
+      </div>
+      <div class="w-row">
+        <div class="w-box">Nợ ván này<br><b>3.000.000 đ</b></div>
+        <div class="w-box">Nợ cũ<br><b>18.000.000 đ</b></div>
+      </div>
+      <div class="w-coin">NGỬA</div>
+      <div class="w-note">Ra NGỬA — Bạn đoán đúng! +500.000 đ</div>
+      <div class="w-row"><div class="w-box w-gold">SẤP</div><div class="w-box">NGỬA</div></div>
+      <div class="w-btn">TUNG XU</div>
+      <div class="w-box" style="text-align:left">Lịch sử 10 lượt · Thắng 4 · Thua 3</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thành phần</th><th>Mô tả</th><th>Token chính</th></tr></thead>
+        <tbody>
+          <tr><td>Logo chữ RichVip</td><td>Chữ, không dùng hình. Font tiêu đề, màu vàng ánh kim.</td><td><code>--font-display</code>, <code>--gradient-gold</code></td></tr>
+          <tr><td>Nút âm thanh</td><td>Biểu tượng loa bật/tắt, góc trên phải, có nhãn cho trình đọc màn hình.</td><td><code>.btn-ghost</code></td></tr>
+          <tr><td>Thẻ Số dư</td><td>Con số lớn nhất màn hình, viền vàng. Hiệu ứng nhảy số khi thay đổi.</td><td><code>--text-4xl</code>, <code>.card-gold</code></td></tr>
+          <tr><td>Đã vay · Nợ ván này · Nợ cũ</td><td>Ba ô thông tin phụ. Ô "Nợ cũ" chỉ hiện khi nợ cũ &gt; 0.</td><td><code>--color-text-muted</code></td></tr>
+          <tr><td>Đồng xu</td><td>Hình tròn vàng, hai mặt ghi SẤP / NGỬA. Xoay 3D khoảng 1,5 giây khi tung.</td><td><code>--gradient-gold</code>, <code>--glow-gold</code></td></tr>
+          <tr><td>Thông báo kết quả</td><td>Xanh khi đúng, đỏ khi sai; được đọc bởi trình đọc màn hình (vùng thông báo động).</td><td><code>--color-success</code>, <code>--color-danger</code></td></tr>
+          <tr><td>Nút Sấp / Ngửa</td><td>Hai nút lớn cạnh nhau; nút đang chọn viền vàng phát sáng.</td><td>kiểu "Chọn Sấp / Ngửa" trong design system</td></tr>
+          <tr><td>Nút Tung xu</td><td>Nút chính, lớn, vàng. Vô hiệu khi chưa chọn mặt, khi đang xoay, hoặc khi số dư = 0.</td><td><code>.btn-primary.btn-lg</code></td></tr>
+          <tr><td>Lịch sử &amp; thống kê</td><td>Danh sách 10 dòng, mới nhất ở trên; dòng vay tiền dùng màu đỏ nhạt.</td><td><code>.badge-win</code>, <code>.badge-lose</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Trạng thái của màn hình chơi</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Trạng thái</th><th>Nút chọn mặt</th><th>Nút Tung xu</th><th>Đồng xu</th></tr></thead>
+        <tbody>
+          <tr><td>Chưa chọn mặt</td><td>Bật</td><td>Vô hiệu</td><td>Đứng yên</td></tr>
+          <tr><td>Sẵn sàng</td><td>Bật, 1 nút sáng</td><td>Bật</td><td>Đứng yên</td></tr>
+          <tr><td>Đang xoay</td><td>Khoá</td><td>Khoá, chữ "Đang tung…"</td><td>Xoay</td></tr>
+          <tr><td>Hết tiền</td><td>Khoá</td><td>Khoá</td><td>Đứng yên, hộp thoại phủ lên</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="s2"><span class="num">S-02</span>Hộp thoại vay</h2>
+    <div class="wire" aria-label="Phác thảo hộp thoại vay">
+      <div class="w-box w-gold" style="font-weight:700">Hết tiền rồi!</div>
+      <div class="w-note">Vay thêm 5.000.000 đ để chơi tiếp?<br>Còn được vay 2 / 3 lần trong ván này.</div>
+      <div class="w-btn w-btn-red">VAY 5.000.000 Đ</div>
+    </div>
+    <ul>
+      <li>Hiện đè lên màn hình chơi, nền phía sau tối mờ.</li>
+      <li>Chỉ có một nút hành động: <strong>Vay [số tiền]</strong> (kiểu nút đỏ <code>.btn-accent</code>). Số tiền theo lần vay: 3.000.000 đ → 5.000.000 đ → 10.000.000 đ.</li>
+      <li>Không đóng được bằng Esc hay bấm ra ngoài. Tiêu điểm bàn phím nằm trong hộp thoại.</li>
+      <li>Số lần còn được vay = 3 − số lần đã vay.</li>
+    </ul>
+
+    <h2 id="s3"><span class="num">S-03</span>Màn hình nợ</h2>
+    <div class="wire" aria-label="Phác thảo màn hình nợ">
+      <div class="w-box w-gold" style="font-weight:700">GAME OVER</div>
+      <div class="w-box" style="color:var(--color-text)">Bạn nợ số tiền là <b style="color:var(--red-300)">36.000.000 đ</b>, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.</div>
+      <div class="w-row"><div class="w-box">Lượt<br><b>14</b></div><div class="w-box">Thắng<br><b>5</b></div><div class="w-box">Thua<br><b>9</b></div></div>
+      <div class="w-note">Số ván đã thua: 2</div>
+      <div class="w-btn w-btn-ghost">CHƠI LẠI</div>
+      <div class="w-note">Đây là trò chơi giải trí, tiền trong game là tiền ảo.</div>
+    </div>
+    <ul>
+      <li>Thay toàn bộ màn hình chơi (không phải hộp thoại).</li>
+      <li>Câu thông báo nợ là nội dung chính, cỡ chữ lớn; số X nổi bật màu đỏ.</li>
+      <li>Câu thông báo phải khớp <strong>nguyên văn</strong>: "Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</li>
+      <li>Dòng chú thích tiền ảo luôn hiển thị, không được ẩn.</li>
+      <li>Nút <strong>Chơi lại</strong> bắt đầu ván mới, nợ cũ được giữ.</li>
+    </ul>
+
+    <h2 id="luong"><span class="num">4.</span>Luồng chuyển màn hình</h2>
+<pre><code>Mở trang ──► [S-01 Màn hình chơi] ──tung xu──► (số dư &gt; 0) ──► S-01
+                    │
+                    └── số dư = 0 ──┬── đã vay &lt; 3 ──► [S-02 Hộp thoại vay] ──vay──► S-01
+                                    │
+                                    └── đã vay = 3 ──► [S-03 Màn hình nợ] ──chơi lại──► S-01 (ván mới)
+
+Tải lại trang ở bất kỳ đâu ──► quay về đúng màn hình đang ở trước đó</code></pre>
+
+    <h2 id="chung"><span class="num">5.</span>Quy định chung</h2>
+    <ul>
+      <li><strong>Giao diện:</strong> chỉ dùng giá trị trong <code>design/tokens.css</code>; không tự đặt mã màu mới.</li>
+      <li><strong>Responsive:</strong> từ 360px; trên điện thoại các ô xếp dọc, nút Tung xu rộng hết chiều ngang. Không cuộn ngang.</li>
+      <li><strong>Ngôn ngữ:</strong> tiếng Việt có dấu đầy đủ.</li>
+      <li><strong>Tiếp cận:</strong> mọi nút dùng được bằng bàn phím, có viền tiêu điểm vàng; độ tương phản chữ đạt chuẩn WCAG AA.</li>
+      <li><strong>Hình ảnh:</strong> không dùng logo, hình ảnh hay nội dung của website hoặc game khác.</li>
+    </ul>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="02-chuc-nang.html">← 02 · Chức năng</a>
+      <a class="next" href="04-quy-tac-du-lieu.html">04 · Quy tắc &amp; dữ liệu →</a>
+    </nav>
+  </main>
+
+  <footer>RichVip · Tài liệu thiết kế · 11/2026</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>01 · Tổng quan — RichVip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="brand" href="index.html">RichVip</a>
+      <nav class="nav" aria-label="Tài liệu">
+        <a href="index.html">Mục lục</a>
+        <a href="01-tong-quan.html" aria-current="page">Tổng quan</a>
+        <a href="02-chuc-nang.html">Chức năng</a>
+        <a href="03-man-hinh.html">Màn hình</a>
+        <a href="04-quy-tac-du-lieu.html">Dữ liệu</a>
+        <a href="05-ke-hoach-test.html">Kế hoạch test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div class="eyebrow">01 · Tổng quan</div>
+      <h1>Tổng quan dự án</h1>
+      <p class="lead">RichVip là mini game đoán mặt đồng xu, chạy hoàn toàn trên trình duyệt. Người chơi cược 500.000 đ mỗi lượt, được vay khi hết tiền, và nhận "giấy báo nợ" khi thua sạch.</p>
+    </div>
+
+    <nav class="toc" aria-label="Trong trang này">
+      <strong>Trong trang này</strong>
+      <ol>
+        <li><a href="#muc-tieu">Mục tiêu</a></li>
+        <li><a href="#luat-choi">Luật chơi tóm tắt</a></li>
+        <li><a href="#quyet-dinh">Quyết định đã chốt</a></li>
+        <li><a href="#pham-vi">Phạm vi</a></li>
+        <li><a href="#cong-nghe">Nền tảng &amp; công nghệ</a></li>
+        <li><a href="#thuat-ngu">Thuật ngữ</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="muc-tieu"><span class="num">1.</span>Mục tiêu</h2>
+    <ul>
+      <li>Tạo một mini game giải trí ngắn, dễ hiểu, chơi ngay không cần cài đặt.</li>
+      <li>Trải nghiệm phong cách "VIP": nền tối, vàng ánh kim, hiệu ứng tung xu và âm thanh.</li>
+      <li>Dùng làm bài thực hành: yêu cầu → tài liệu → code → kiểm thử.</li>
+    </ul>
+
+    <h2 id="luat-choi"><span class="num">2.</span>Luật chơi tóm tắt</h2>
+    <ol>
+      <li>Bắt đầu với số dư <span class="money">1.000.000 đ</span>.</li>
+      <li>Mỗi lượt chọn <strong>Sấp</strong> hoặc <strong>Ngửa</strong>, rồi bấm <strong>Tung xu</strong>.</li>
+      <li>Đoán đúng: <span class="money">+500.000 đ</span>. Đoán sai: <span class="money">−500.000 đ</span>.</li>
+      <li><strong>Độ khó tăng dần:</strong> đầu ván đoán đúng nhiều, càng chơi lâu và càng vay nhiều thì càng hay sai, cuối cùng luôn thua (chi tiết ở <a href="04-quy-tac-du-lieu.html#do-kho">trang 04</a>).</li>
+      <li>Số dư về 0 → được vay, tối đa <strong>3 lần</strong> mỗi ván, số tiền tăng dần: <span class="money">3.000.000 đ</span> → <span class="money">5.000.000 đ</span> → <span class="money">10.000.000 đ</span>.</li>
+      <li>Đã vay đủ 3 lần mà số dư lại về 0 → ván kết thúc, hiện thông báo nợ.</li>
+      <li>Không có nút dừng giữa chừng: ván chỉ kết thúc khi thua hết.</li>
+      <li>Chơi lại → ván mới, nhưng <strong>nợ cũ được cộng dồn</strong>.</li>
+    </ol>
+
+    <div class="callout danger">
+      <span class="label">Thông báo khi thua</span>
+      <p>"Bạn nợ số tiền là <strong>X</strong>, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</p>
+      <p>X = nợ cũ cộng dồn + nợ của ván vừa thua. Bên dưới luôn có dòng ghi chú: "Đây là trò chơi giải trí, tiền trong game là tiền ảo."</p>
+    </div>
+
+    <h2 id="quyet-dinh"><span class="num">3.</span>Quyết định đã chốt (phỏng vấn &amp; bổ sung 17/11/2026)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Câu hỏi</th><th>Quyết định</th><th>So với YEU-CAU.md</th></tr></thead>
+        <tbody>
+          <tr><td class="id">Q1</td><td>Số dư khởi điểm</td><td><span class="money">1.000.000 đ</span></td><td><span class="badge badge-muted">Giữ nguyên</span></td></tr>
+          <tr><td class="id">Q2</td><td>Có được dừng để chốt kết quả?</td><td>Không. Chơi đến khi thua hết.</td><td><span class="badge badge-muted">Giữ nguyên</span></td></tr>
+          <tr><td class="id">Q3</td><td>Tải lại trang / đóng trình duyệt</td><td>Giữ tiến độ (lưu trong trình duyệt), mở lại chơi tiếp.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q4</td><td>Âm thanh</td><td>Có âm thanh, mặc định bật, có nút tắt và nhớ lựa chọn.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q5</td><td>Nợ cũ khi chơi lại</td><td>Cộng dồn sang ván sau.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">B1</td><td>Tỉ lệ thắng (bổ sung)</td><td>Không còn 50/50: độ khó tăng dần theo số lượt và số lần vay, cuối cùng luôn thua.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">B2</td><td>Số tiền vay (bổ sung)</td><td>3.000.000 đ, 5.000.000 đ, 10.000.000 đ cho lần 1, 2, 3.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="pham-vi"><span class="num">4.</span>Phạm vi</h2>
+    <h3>Trong phạm vi</h3>
+    <ul>
+      <li>Một trang game duy nhất, chạy bằng cách mở file HTML.</li>
+      <li>Tung xu, tính tiền, vay tiền, màn hình nợ, chơi lại.</li>
+      <li>Lịch sử 10 lượt gần nhất, thống kê thắng/thua.</li>
+      <li>Lưu tiến độ và nợ cộng dồn trong trình duyệt.</li>
+      <li>Âm thanh và nút tắt âm thanh.</li>
+      <li>Giao diện responsive theo <code>design/tokens.css</code>.</li>
+    </ul>
+    <h3>Ngoài phạm vi</h3>
+    <ul>
+      <li>Đăng nhập, tài khoản, máy chủ, bảng xếp hạng.</li>
+      <li>Nút dừng / chốt kết quả giữa ván.</li>
+      <li>Chọn mức cược khác 500.000 đ.</li>
+      <li>Trả nợ bằng tiền thắng; xoá nợ từ trong game.</li>
+      <li>Đồng bộ tiến độ giữa nhiều trình duyệt hoặc thiết bị.</li>
+    </ul>
+
+    <h2 id="cong-nghe"><span class="num">5.</span>Nền tảng &amp; công nghệ</h2>
+    <ul>
+      <li>HTML, CSS, JavaScript thuần — không framework, không cần build.</li>
+      <li>Giao diện dùng <code>design/tokens.css</code>; font Playfair Display và Be Vietnam Pro.</li>
+      <li>Lưu dữ liệu bằng <code>localStorage</code>.</li>
+      <li>Hỗ trợ bản mới của Chrome, Safari, Firefox, Edge; màn hình từ 360px trở lên.</li>
+    </ul>
+
+    <h2 id="thuat-ngu"><span class="num">6.</span>Thuật ngữ</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thuật ngữ</th><th>Nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Lượt</strong></td><td>Một lần chọn mặt và tung xu.</td></tr>
+          <tr><td><strong>Ván</strong></td><td>Từ lúc bắt đầu với 1.000.000 đ cho đến màn hình nợ.</td></tr>
+          <tr><td><strong>Số dư</strong></td><td>Tiền hiện có để cược.</td></tr>
+          <tr><td><strong>Nợ ván này</strong></td><td>Tổng tiền đã vay trong ván hiện tại (0 – 18.000.000 đ).</td></tr>
+          <tr><td><strong>Tỉ lệ thắng</strong></td><td>Xác suất đồng xu ra đúng mặt người chơi chọn ở một lượt; do game điều khiển, giảm dần.</td></tr>
+          <tr><td><strong>Nợ cũ</strong></td><td>Tổng nợ của các ván đã thua trước đó, được cộng dồn.</td></tr>
+          <tr><td><strong>Tổng nợ</strong></td><td>Nợ cũ + nợ ván này.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="index.html">← Mục lục</a>
+      <a class="next" href="02-chuc-nang.html">02 · Chức năng →</a>
+    </nav>
+  </main>
+
+  <footer>RichVip · Tài liệu thiết kế · 11/2026</footer>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>02 · Chức năng — RichVip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="brand" href="index.html">RichVip</a>
+      <nav class="nav" aria-label="Tài liệu">
+        <a href="index.html">Mục lục</a>
+        <a href="01-tong-quan.html">Tổng quan</a>
+        <a href="02-chuc-nang.html" aria-current="page">Chức năng</a>
+        <a href="03-man-hinh.html">Màn hình</a>
+        <a href="04-quy-tac-du-lieu.html">Dữ liệu</a>
+        <a href="05-ke-hoach-test.html">Kế hoạch test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div class="eyebrow">02 · Chức năng</div>
+      <h1>Danh sách chức năng</h1>
+      <p class="lead">Mỗi chức năng có mã <code>F-xx</code>, mô tả, và điều kiện chấp nhận. Kế hoạch test ở trang 05 dẫn chiếu lại các mã này.</p>
+    </div>
+
+    <h2>Tổng hợp</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Ưu tiên</th></tr></thead>
+        <tbody>
+          <tr><td class="id">F-01</td><td><a href="#f01">Khởi động &amp; khôi phục tiến độ</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-02</td><td><a href="#f02">Chọn mặt Sấp / Ngửa</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-03</td><td><a href="#f03">Tung xu</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-04</td><td><a href="#f04">Tính kết quả &amp; cập nhật tiền</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-05</td><td><a href="#f05">Vay tiền</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-06</td><td><a href="#f06">Kết thúc ván &amp; thông báo nợ</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-07</td><td><a href="#f07">Chơi lại với nợ cộng dồn</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-08</td><td><a href="#f08">Lưu tiến độ</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-09</td><td><a href="#f09">Lịch sử &amp; thống kê</a></td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">F-10</td><td><a href="#f10">Âm thanh &amp; nút tắt</a></td><td><span class="badge badge-gold">Nên có</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="f01"><span class="num">F-01</span>Khởi động &amp; khôi phục tiến độ</h2>
+    <p>Khi mở trang, game đọc dữ liệu đã lưu trong trình duyệt.</p>
+    <ul>
+      <li>Chưa có dữ liệu → tạo ván mới: số dư 1.000.000 đ, nợ cũ 0, nợ ván này 0, đã vay 0/3.</li>
+      <li>Có dữ liệu hợp lệ → khôi phục đúng trạng thái: đang chơi, đang chờ vay, hoặc đang ở màn hình nợ.</li>
+      <li>Dữ liệu hỏng hoặc sai cấu trúc → bỏ qua và tạo ván mới (xem <a href="04-quy-tac-du-lieu.html#loi-du-lieu">quy tắc dữ liệu</a>).</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> tải lại trang ở bất kỳ thời điểm nào đều quay về đúng số dư, số lần vay, nợ và màn hình trước đó.</p>
+
+    <h2 id="f02"><span class="num">F-02</span>Chọn mặt Sấp / Ngửa</h2>
+    <ul>
+      <li>Hai nút lớn <strong>Sấp</strong> và <strong>Ngửa</strong>; chỉ chọn được một. Nút đang chọn được làm nổi bật viền vàng.</li>
+      <li>Lựa chọn được giữ lại cho lượt sau (người chơi có thể đổi bất kỳ lúc nào khi xu không xoay).</li>
+      <li>Hỗ trợ bàn phím: <kbd>Tab</kbd> để di chuyển, <kbd>Enter</kbd>/<kbd>Space</kbd> để chọn.</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> chưa chọn mặt thì nút Tung xu bị vô hiệu hoá; đang xoay thì không đổi được lựa chọn.</p>
+
+    <h2 id="f03"><span class="num">F-03</span>Tung xu</h2>
+    <ul>
+      <li>Bấm <strong>Tung xu</strong> → kết quả được quyết định <strong>ngay lập tức</strong> theo <a href="04-quy-tac-du-lieu.html#do-kho">bảng độ khó</a> và lưu lại, sau đó mới chạy hiệu ứng xoay khoảng 1,5 giây.</li>
+      <li>Trong lúc xoay: khoá nút Tung xu và nút chọn mặt.</li>
+      <li>Kết thúc hiệu ứng: đồng xu dừng ở mặt kết quả, hiện thông báo đúng/sai.</li>
+      <li>Người dùng bật "giảm chuyển động" trong hệ điều hành → bỏ hiệu ứng xoay, hiện kết quả ngay.</li>
+      <li><strong>Độ khó tăng dần:</strong> tỉ lệ thắng giảm theo số lượt trong ván và số lần đã vay; từ lượt 21 hoặc sau lần vay thứ 3 thì luôn thua. Thắng → xu ra đúng mặt đã chọn; thua → ra mặt còn lại.</li>
+      <li>Giao diện không ghi "50/50" hay "công bằng" ở bất kỳ đâu.</li>
+    </ul>
+    <div class="callout">
+      <span class="label">Vì sao quyết định kết quả trước hiệu ứng?</span>
+      <p>Để người chơi không thể tải lại trang giữa lúc xu đang xoay nhằm né một lượt thua.</p>
+    </div>
+
+    <h2 id="f04"><span class="num">F-04</span>Tính kết quả &amp; cập nhật tiền</h2>
+    <ul>
+      <li>Đoán đúng: số dư <span class="money">+500.000 đ</span>, số lượt thắng +1.</li>
+      <li>Đoán sai: số dư <span class="money">−500.000 đ</span>, số lượt thua +1.</li>
+      <li>Thông báo: "Ra NGỬA — Bạn đoán đúng! +500.000 đ" (xanh) hoặc "Ra SẤP — Bạn đoán sai! −500.000 đ" (đỏ).</li>
+      <li>Tiền hiển thị kiểu Việt Nam: <code>1.500.000 đ</code>.</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> số dư không bao giờ âm; mọi thay đổi khớp đúng công thức ở <a href="04-quy-tac-du-lieu.html#cong-thuc">trang 04</a>.</p>
+
+    <h2 id="f05"><span class="num">F-05</span>Vay tiền</h2>
+    <ul>
+      <li>Số dư về 0 và đã vay <strong>dưới 3 lần</strong> trong ván → tự hiện hộp thoại vay.</li>
+      <li>Số tiền vay tăng dần: lần 1 <span class="money">3.000.000 đ</span>, lần 2 <span class="money">5.000.000 đ</span>, lần 3 <span class="money">10.000.000 đ</span>. Nút ghi đúng số tiền của lần vay kế tiếp.</li>
+      <li>Bấm <strong>Vay</strong> → số dư + số tiền vay, nợ ván này + số tiền vay, số lần vay +1.</li>
+      <li>Hộp thoại không đóng được bằng cách bấm ra ngoài hay phím Esc: người chơi phải vay mới chơi tiếp.</li>
+      <li>Tải lại trang khi đang ở hộp thoại → hộp thoại hiện lại.</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> không thể vay lần thứ 4 trong cùng một ván; không thể vay khi số dư còn lớn hơn 0.</p>
+
+    <h2 id="f06"><span class="num">F-06</span>Kết thúc ván &amp; thông báo nợ</h2>
+    <ul>
+      <li>Đã vay 3 lần và số dư về 0 → ván kết thúc. Trước hết cộng nợ ván này vào nợ cũ.</li>
+      <li>Hiện màn hình nợ với câu: <em>"Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</em></li>
+      <li>X = tổng nợ cộng dồn sau khi đã cộng ván này (ván thua đầu tiên: 18.000.000 đ; ván thứ hai: 36.000.000 đ; …).</li>
+      <li>Hiển thị thống kê ván: số lượt, thắng, thua; và số ván đã thua.</li>
+      <li>Dòng chú thích luôn có: "Đây là trò chơi giải trí, tiền trong game là tiền ảo."</li>
+    </ul>
+
+    <h2 id="f07"><span class="num">F-07</span>Chơi lại với nợ cộng dồn</h2>
+    <ul>
+      <li>Nút <strong>Chơi lại</strong> chỉ có ở màn hình nợ.</li>
+      <li>Bấm → ván mới: số dư 1.000.000 đ, đã vay 0/3, nợ ván này 0, lịch sử và thống kê ván được xoá.</li>
+      <li><strong>Giữ nguyên nợ cũ</strong> và số ván đã thua. Nợ cũ hiển thị trên màn hình chơi.</li>
+      <li>Trong game không có cách nào xoá nợ cũ.</li>
+    </ul>
+
+    <h2 id="f08"><span class="num">F-08</span>Lưu tiến độ</h2>
+    <ul>
+      <li>Lưu ngay sau mỗi thay đổi: kết quả tung, vay, kết thúc ván, chơi lại, bật/tắt âm thanh.</li>
+      <li>Lưu trong <code>localStorage</code> của trình duyệt; chỉ có trên máy và trình duyệt đó.</li>
+      <li>Trình duyệt chặn lưu trữ (ví dụ chế độ riêng tư) → game vẫn chơi được bình thường, chỉ là không nhớ được khi tải lại.</li>
+    </ul>
+
+    <h2 id="f09"><span class="num">F-09</span>Lịch sử &amp; thống kê</h2>
+    <ul>
+      <li>Danh sách 10 lượt gần nhất, mới nhất ở trên: lựa chọn → kết quả, đúng/sai, số dư sau lượt.</li>
+      <li>Các lần vay cũng xuất hiện trong lịch sử dưới dạng dòng "Vay +3.000.000 đ" (hoặc 5, 10 triệu).</li>
+      <li>Thống kê ván: số lượt, thắng, thua.</li>
+    </ul>
+
+    <h2 id="f10"><span class="num">F-10</span>Âm thanh &amp; nút tắt</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sự kiện</th><th>Âm thanh</th></tr></thead>
+        <tbody>
+          <tr><td>Bấm Tung xu</td><td>Tiếng đồng xu xoay (dài bằng hiệu ứng)</td></tr>
+          <tr><td>Đoán đúng</td><td>Tiếng tiền xu rơi / chuông vui</td></tr>
+          <tr><td>Đoán sai</td><td>Tiếng trầm ngắn</td></tr>
+          <tr><td>Vay tiền</td><td>Tiếng "ký sổ"</td></tr>
+          <tr><td>Màn hình nợ</td><td>Tiếng kết thúc buồn</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>Mặc định <strong>bật</strong>. Nút loa ở góc trên phải để tắt/bật; lựa chọn được lưu lại.</li>
+      <li>Âm thanh chỉ phát sau lần bấm đầu tiên của người chơi (do quy định tự phát của trình duyệt).</li>
+      <li>Âm thanh tự tạo hoặc dùng nguồn miễn phí bản quyền; không dùng âm thanh của game khác.</li>
+    </ul>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="01-tong-quan.html">← 01 · Tổng quan</a>
+      <a class="next" href="03-man-hinh.html">03 · Màn hình →</a>
+    </nav>
+  </main>
+
+  <footer>RichVip · Tài liệu thiết kế · 11/2026</footer>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04 · Quy tắc &amp; dữ liệu — RichVip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="brand" href="index.html">RichVip</a>
+      <nav class="nav" aria-label="Tài liệu">
+        <a href="index.html">Mục lục</a>
+        <a href="01-tong-quan.html">Tổng quan</a>
+        <a href="02-chuc-nang.html">Chức năng</a>
+        <a href="03-man-hinh.html">Màn hình</a>
+        <a href="04-quy-tac-du-lieu.html" aria-current="page">Dữ liệu</a>
+        <a href="05-ke-hoach-test.html">Kế hoạch test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div class="eyebrow">04 · Quy tắc &amp; dữ liệu</div>
+      <h1>Quy tắc tính tiền &amp; dữ liệu</h1>
+      <p class="lead">Trang này là nguồn chuẩn cho mọi con số trong game. Nếu trang khác mâu thuẫn với trang này, làm theo trang này.</p>
+    </div>
+
+    <nav class="toc" aria-label="Trong trang này">
+      <strong>Trong trang này</strong>
+      <ol>
+        <li><a href="#hang-so">Hằng số cấu hình</a></li>
+        <li><a href="#cong-thuc">Công thức tính tiền</a></li>
+        <li><a href="#do-kho">Độ khó tăng dần</a></li>
+        <li><a href="#trang-thai">Máy trạng thái</a></li>
+        <li><a href="#vi-du">Ví dụ một ván</a></li>
+        <li><a href="#cau-truc">Cấu trúc dữ liệu lưu</a></li>
+        <li><a href="#rang-buoc">Ràng buộc hợp lệ</a></li>
+        <li><a href="#loi-du-lieu">Xử lý lỗi dữ liệu</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="hang-so"><span class="num">1.</span>Hằng số cấu hình</h2>
+    <p>Khai báo tập trung ở một chỗ trong code để dễ thay đổi.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tên</th><th>Giá trị</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td class="id">SO_DU_DAU</td><td class="money">1.000.000</td><td>Số dư khi bắt đầu mỗi ván</td></tr>
+          <tr><td class="id">MUC_CUOC</td><td class="money">500.000</td><td>Tiền thắng / thua mỗi lượt</td></tr>
+          <tr><td class="id">CAC_MUC_VAY</td><td class="money">[3.000.000, 5.000.000, 10.000.000]</td><td>Số tiền của lần vay thứ 1, 2, 3</td></tr>
+          <tr><td class="id">SO_LAN_VAY_TOI_DA</td><td>3</td><td>Số lần vay tối đa mỗi ván</td></tr>
+          <tr><td class="id">SO_TAI_KHOAN</td><td><code>ACB 99995886</code></td><td>Hiển thị trong câu thông báo nợ</td></tr>
+          <tr><td class="id">SO_DONG_LICH_SU</td><td>10</td><td>Số dòng lịch sử giữ lại</td></tr>
+          <tr><td class="id">THOI_GIAN_XOAY</td><td>1.500 ms</td><td>Thời lượng hiệu ứng tung xu</td></tr>
+          <tr><td class="id">TI_LE_THEO_LUOT</td><td><code>[0.8, 0.6, 0.4, 0.2, 0]</code></td><td>Tỉ lệ thắng theo nhóm 5 lượt trong ván (xem mục 3)</td></tr>
+          <tr><td class="id">TI_LE_THEO_VAY</td><td><code>[1, 0.3, 0.15, 0]</code></td><td>Tỉ lệ thắng tối đa theo số lần đã vay 0, 1, 2, 3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="cong-thuc"><span class="num">2.</span>Công thức tính tiền</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sự kiện</th><th>Thay đổi</th></tr></thead>
+        <tbody>
+          <tr><td>Đoán đúng</td><td><code>soDu += 500.000</code>; <code>soThang += 1</code>; <code>soLuot += 1</code></td></tr>
+          <tr><td>Đoán sai</td><td><code>soDu −= 500.000</code>; <code>soThua += 1</code>; <code>soLuot += 1</code></td></tr>
+          <tr><td>Vay</td><td><code>tien = CAC_MUC_VAY[soLanVay]</code>; <code>soDu += tien</code>; <code>noVanNay += tien</code>; <code>soLanVay += 1</code></td></tr>
+          <tr><td>Kết thúc ván</td><td><code>noCu += noVanNay</code>; <code>noVanNay = 0</code>; <code>soVanThua += 1</code></td></tr>
+          <tr><td>Chơi lại</td><td><code>soDu = 1.000.000</code>; <code>soLanVay = 0</code>; thống kê và lịch sử về rỗng. <strong>Giữ</strong> <code>noCu</code>, <code>soVanThua</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>Tổng nợ</strong> hiển thị khi đang chơi = <code>noCu + noVanNay</code>.</li>
+      <li><strong>X</strong> trên màn hình nợ = <code>noCu</code> (đã cộng nợ ván vừa thua) = <code>soVanThua × 18.000.000</code>.</li>
+      <li>Mọi số tiền là số nguyên đồng, luôn là bội của 500.000 → số dư chạm đúng 0, không bao giờ âm.</li>
+      <li>Tiền thắng không dùng để trừ nợ.</li>
+      <li>Định dạng hiển thị: <code>Intl.NumberFormat("vi-VN")</code> + " đ" → <code>18.000.000 đ</code>.</li>
+    </ul>
+
+    <h2 id="do-kho"><span class="num">3.</span>Độ khó tăng dần</h2>
+    <p>Đồng xu <strong>không</strong> công bằng. Tỉ lệ thắng của mỗi lượt được tính như sau, với <code>n</code> là số thứ tự của lượt sắp tung trong ván (lượt đầu tiên là 1):</p>
+<pre><code>tiLeTheoLuot = TI_LE_THEO_LUOT[ min( floor((n − 1) / 5), 4 ) ]
+tiLeTheoVay  = TI_LE_THEO_VAY[ soLanVay ]
+tiLeThang    = min(tiLeTheoLuot, tiLeTheoVay)
+
+thang   = Math.random() &lt; tiLeThang
+ketQua  = thang ? luaChon : (mặt còn lại)</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lượt thứ (trong ván)</th><th>1–5</th><th>6–10</th><th>11–15</th><th>16–20</th><th>21 trở đi</th></tr></thead>
+        <tbody><tr><td>Tỉ lệ thắng</td><td>80%</td><td>60%</td><td>40%</td><td>20%</td><td>0%</td></tr></tbody>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Số lần đã vay</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead>
+        <tbody><tr><td>Tỉ lệ thắng tối đa</td><td>không giới hạn</td><td>30%</td><td>15%</td><td>0%</td></tr></tbody>
+      </table>
+    </div>
+    <ul>
+      <li>Bộ đếm lượt <code>n</code> tính theo ván (<code>thongKe.soLuot + 1</code>) và về lại 1 khi chơi lại, nên mỗi ván mới lại bắt đầu "dễ".</li>
+      <li>Từ lượt 21, hoặc sau lần vay thứ 3, người chơi <strong>luôn thua</strong> → mọi ván chắc chắn kết thúc.</li>
+      <li>Không cần lưu thêm dữ liệu: tỉ lệ được tính lại từ <code>soLuot</code> và <code>soLanVay</code>.</li>
+      <li>Chế độ test (<code>?test=1</code>) ép kết quả được ưu tiên hơn bảng này.</li>
+    </ul>
+    <div class="callout">
+      <span class="label">Ước lượng độ dài một ván</span>
+      <p>Thường hết 1.000.000 đ ban đầu quanh lượt 20–25. Sau đó tỉ lệ thắng đã là 0%, nên 18.000.000 đ tiền vay mất thêm đúng 36 lượt thua liên tiếp. Mô phỏng 20.000 ván: trung bình khoảng 57 lượt mỗi ván, 80% số ván nằm trong khoảng 52–64 lượt, dài nhất 72 lượt.</p>
+    </div>
+
+    <h2 id="trang-thai"><span class="num">4.</span>Máy trạng thái</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Trạng thái hiện tại</th><th>Sự kiện</th><th>Điều kiện</th><th>Trạng thái mới</th></tr></thead>
+        <tbody>
+          <tr><td><code>dang-choi</code></td><td>Tung xu</td><td>đã chọn mặt, <code>soDu &gt; 0</code></td><td><code>dang-choi</code> nếu <code>soDu &gt; 0</code> sau lượt</td></tr>
+          <tr><td><code>dang-choi</code></td><td>Tung xu (thua)</td><td>sau lượt <code>soDu = 0</code> và <code>soLanVay &lt; 3</code></td><td><code>cho-vay</code></td></tr>
+          <tr><td><code>dang-choi</code></td><td>Tung xu (thua)</td><td>sau lượt <code>soDu = 0</code> và <code>soLanVay = 3</code></td><td><code>ket-thuc</code></td></tr>
+          <tr><td><code>cho-vay</code></td><td>Vay</td><td>—</td><td><code>dang-choi</code></td></tr>
+          <tr><td><code>ket-thuc</code></td><td>Chơi lại</td><td>—</td><td><code>dang-choi</code> (ván mới)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Mọi sự kiện không có trong bảng đều bị bỏ qua (ví dụ: tung xu khi đang <code>cho-vay</code>).</p>
+
+    <h2 id="vi-du"><span class="num">5.</span>Ví dụ một ván (người chơi đã thua 1 ván trước đó)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lượt / sự kiện</th><th>Tỉ lệ thắng</th><th>Kết quả</th><th>Số dư</th><th>Đã vay</th><th>Nợ ván này</th><th>Nợ cũ</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr><td>Chơi lại</td><td>—</td><td>—</td><td class="money">1.000.000</td><td>0</td><td>0</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 1–5</td><td>80%</td><td>4 đúng, 1 sai</td><td class="money">2.500.000</td><td>0</td><td>0</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 6–10</td><td>60%</td><td>3 đúng, 2 sai</td><td class="money">3.000.000</td><td>0</td><td>0</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 11–15</td><td>40%</td><td>2 đúng, 3 sai</td><td class="money">2.500.000</td><td>0</td><td>0</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 16–20</td><td>20%</td><td>1 đúng, 4 sai</td><td class="money">1.000.000</td><td>0</td><td>0</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 21–22</td><td>0%</td><td>2 sai</td><td class="money">0</td><td>0</td><td>0</td><td>18.000.000</td><td><code>cho-vay</code></td></tr>
+          <tr><td>Vay lần 1</td><td>—</td><td>—</td><td class="money">3.000.000</td><td>1</td><td>3.000.000</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 23–28</td><td>0%</td><td>6 sai</td><td class="money">0</td><td>1</td><td>3.000.000</td><td>18.000.000</td><td><code>cho-vay</code></td></tr>
+          <tr><td>Vay lần 2</td><td>—</td><td>—</td><td class="money">5.000.000</td><td>2</td><td>8.000.000</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 29–38</td><td>0%</td><td>10 sai</td><td class="money">0</td><td>2</td><td>8.000.000</td><td>18.000.000</td><td><code>cho-vay</code></td></tr>
+          <tr><td>Vay lần 3</td><td>—</td><td>—</td><td class="money">10.000.000</td><td>3</td><td>18.000.000</td><td>18.000.000</td><td><code>dang-choi</code></td></tr>
+          <tr><td>Lượt 39–58</td><td>0%</td><td>20 sai</td><td class="money">0</td><td>3</td><td>0</td><td>36.000.000</td><td><code>ket-thuc</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Màn hình nợ hiện: "Bạn nợ số tiền là <span class="money">36.000.000 đ</span>, …".</p>
+
+    <h2 id="cau-truc"><span class="num">6.</span>Cấu trúc dữ liệu lưu</h2>
+    <p>Lưu trong <code>localStorage</code> dưới dạng JSON, hai khoá riêng:</p>
+    <h3>Khoá <code>richvip.state</code></h3>
+<pre><code>{
+  "version": 1,
+  "trangThai": "dang-choi",        // "dang-choi" | "cho-vay" | "ket-thuc"
+  "soDu": 1500000,
+  "soLanVay": 1,
+  "noVanNay": 3000000,
+  "noCu": 18000000,
+  "soVanThua": 1,
+  "luaChon": "ngua",               // "sap" | "ngua" | null
+  "matXuCuoi": "ngua",             // mặt hiển thị trên đồng xu; null khi ván mới
+  "thongKe": { "soLuot": 4, "soThang": 2, "soThua": 2 },
+  "lichSu": [                      // tối đa 10 phần tử, mới nhất đầu tiên
+    { "loai": "tung", "chon": "ngua", "ketQua": "ngua", "dung": true,  "soDuSau": 1500000 },
+    { "loai": "vay",  "soTien": 3000000, "soDuSau": 3000000 }
+  ]
+}</code></pre>
+    <h3>Khoá <code>richvip.amThanh</code></h3>
+    <p>Giá trị <code>"bat"</code> hoặc <code>"tat"</code>. Tách riêng để giữ lựa chọn âm thanh kể cả khi dữ liệu ván bị lỗi.</p>
+    <h3>Thời điểm lưu</h3>
+    <ul>
+      <li>Ngay khi kết quả tung được quyết định (<strong>trước</strong> hiệu ứng xoay).</li>
+      <li>Sau khi vay, kết thúc ván, chơi lại, đổi lựa chọn mặt, bật/tắt âm thanh.</li>
+      <li>Mọi lần đọc/ghi đều bọc <code>try/catch</code>; lỗi lưu trữ không được làm game dừng.</li>
+    </ul>
+
+    <h2 id="rang-buoc"><span class="num">7.</span>Ràng buộc hợp lệ</h2>
+    <p>Dữ liệu đọc lên chỉ được dùng khi thoả <strong>tất cả</strong>:</p>
+    <ul>
+      <li><code>version === 1</code>; <code>trangThai</code> thuộc 3 giá trị cho phép.</li>
+      <li>Mọi số tiền là số nguyên ≥ 0 và chia hết cho 500.000.</li>
+      <li><code>0 ≤ soLanVay ≤ 3</code> và <code>noVanNay</code> bằng tổng các mức vay đã dùng: 0 / 3.000.000 / 8.000.000 / 18.000.000 (trừ khi <code>ket-thuc</code>: <code>noVanNay === 0</code>).</li>
+      <li><code>noCu === soVanThua × 18.000.000</code>.</li>
+      <li><code>cho-vay</code> ⇒ <code>soDu === 0</code> và <code>soLanVay &lt; 3</code>; <code>ket-thuc</code> ⇒ <code>soDu === 0</code> và <code>soLanVay === 3</code>.</li>
+      <li><code>lichSu</code> là mảng tối đa 10 phần tử; <code>soThang + soThua === soLuot</code>.</li>
+    </ul>
+
+    <h2 id="loi-du-lieu"><span class="num">8.</span>Xử lý lỗi dữ liệu</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tình huống</th><th>Cách xử lý</th></tr></thead>
+        <tbody>
+          <tr><td>Không có dữ liệu</td><td>Tạo ván mới, nợ cũ = 0.</td></tr>
+          <tr><td>JSON hỏng hoặc vi phạm ràng buộc</td><td>Xoá khoá <code>richvip.state</code>, tạo ván mới, nợ cũ = 0. Ghi cảnh báo vào console.</td></tr>
+          <tr><td>Trình duyệt chặn <code>localStorage</code></td><td>Chơi bình thường trong bộ nhớ; không lưu được giữa các lần tải trang.</td></tr>
+          <tr><td>Người dùng xoá dữ liệu trang web</td><td>Toàn bộ tiến độ và nợ cũ mất — đây là cách duy nhất để "xoá nợ".</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="03-man-hinh.html">← 03 · Màn hình</a>
+      <a class="next" href="05-ke-hoach-test.html">05 · Kế hoạch test →</a>
+    </nav>
+  </main>
+
+  <footer>RichVip · Tài liệu thiết kế · 11/2026</footer>
+</body>
+</html>

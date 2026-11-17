@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>05 · Kế hoạch test — RichVip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="inner">
+      <a class="brand" href="index.html">RichVip</a>
+      <nav class="nav" aria-label="Tài liệu">
+        <a href="index.html">Mục lục</a>
+        <a href="01-tong-quan.html">Tổng quan</a>
+        <a href="02-chuc-nang.html">Chức năng</a>
+        <a href="03-man-hinh.html">Màn hình</a>
+        <a href="04-quy-tac-du-lieu.html">Dữ liệu</a>
+        <a href="05-ke-hoach-test.html" aria-current="page">Kế hoạch test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div class="eyebrow">05 · Kế hoạch test</div>
+      <h1>Kế hoạch kiểm thử</h1>
+      <p class="lead">Các ca test dưới đây dẫn chiếu tới chức năng <code>F-xx</code> ở trang 02. Game đạt yêu cầu khi toàn bộ ca test "Bắt buộc" đều đạt.</p>
+    </div>
+
+    <nav class="toc" aria-label="Trong trang này">
+      <strong>Trong trang này</strong>
+      <ol>
+        <li><a href="#chien-luoc">Chiến lược</a></li>
+        <li><a href="#moi-truong">Môi trường</a></li>
+        <li><a href="#cong-cu">Công cụ hỗ trợ test</a></li>
+        <li><a href="#tc-choi">Ca test: chơi &amp; tính tiền</a></li>
+        <li><a href="#tc-vay">Ca test: vay &amp; nợ</a></li>
+        <li><a href="#tc-luu">Ca test: lưu tiến độ</a></li>
+        <li><a href="#tc-ui">Ca test: giao diện &amp; âm thanh</a></li>
+        <li><a href="#nghiem-thu">Tiêu chí nghiệm thu</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="chien-luoc"><span class="num">1.</span>Chiến lược</h2>
+    <ul>
+      <li><strong>Test logic tự động:</strong> tách phần tính tiền và máy trạng thái thành hàm thuần (không đụng giao diện) để test bằng script chạy trong trình duyệt hoặc Node.</li>
+      <li><strong>Test thủ công:</strong> chơi thực tế trên trình duyệt theo các ca test dưới đây.</li>
+      <li><strong>Test độ khó:</strong> mô phỏng hàng nghìn lượt ở từng mốc (số lượt, số lần vay) để kiểm tra tỉ lệ thắng đúng bảng độ khó.</li>
+    </ul>
+
+    <h2 id="moi-truong"><span class="num">2.</span>Môi trường</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thiết bị</th><th>Trình duyệt</th><th>Kích thước</th></tr></thead>
+        <tbody>
+          <tr><td>Máy tính</td><td>Chrome, Safari, Firefox (bản mới)</td><td>1280px trở lên</td></tr>
+          <tr><td>Điện thoại</td><td>Safari iOS, Chrome Android</td><td>360px – 430px</td></tr>
+          <tr><td>Máy tính bảng</td><td>Safari / Chrome</td><td>768px</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="cong-cu"><span class="num">3.</span>Công cụ hỗ trợ test</h2>
+    <p>Để test nhanh các trường hợp hiếm (thua liên tục, thua nhiều ván), code nên cho phép <strong>ép kết quả</strong> khi mở trang với tham số chỉ dùng khi test, ví dụ <code>index.html?test=1</code>:</p>
+    <ul>
+      <li>Ép lượt tiếp theo ra Sấp hoặc Ngửa.</li>
+      <li>Nạp sẵn một trạng thái mẫu (ví dụ: đã vay 2 lần, số dư 500.000 đ).</li>
+    </ul>
+    <p>Khi không có tham số này, game phải dùng đúng bảng độ khó và không hiện công cụ nào.</p>
+
+    <h2 id="tc-choi"><span class="num">4.</span>Ca test: chơi &amp; tính tiền</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Các bước</th><th>Kết quả mong đợi</th><th>Mức</th></tr></thead>
+        <tbody>
+          <tr><td class="id">TC-01</td><td>F-01</td><td>Xoá dữ liệu trang, mở game</td><td>Số dư 1.000.000 đ, đã vay 0/3, không hiện ô Nợ cũ</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-02</td><td>F-02</td><td>Chưa chọn mặt, quan sát nút Tung xu</td><td>Nút Tung xu bị vô hiệu</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-03</td><td>F-02</td><td>Bấm Sấp rồi bấm Ngửa</td><td>Chỉ Ngửa được làm nổi bật</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-04</td><td>F-03, F-04</td><td>Chọn Ngửa, ép kết quả Ngửa, tung</td><td>Xu xoay ~1,5 giây, dừng ở NGỬA; thông báo xanh; số dư 1.500.000 đ; thắng 1</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-05</td><td>F-03, F-04</td><td>Chọn Ngửa, ép kết quả Sấp, tung</td><td>Thông báo đỏ; số dư 500.000 đ; thua 1</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-06</td><td>F-03</td><td>Bấm Tung xu liên tục nhiều lần thật nhanh</td><td>Chỉ tính 1 lượt; các nút khoá trong lúc xoay</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-07</td><td>F-03</td><td>Script: với mỗi mốc lượt (1–5, 6–10, 11–15, 16–20) khi chưa vay, mô phỏng 10.000 lượt</td><td>Tỉ lệ thắng lần lượt 80%, 60%, 40%, 20%, lệch không quá ±2%</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-07b</td><td>F-03</td><td>Script: lượt 1–5 nhưng đã vay 1 lần / 2 lần, mỗi trường hợp 10.000 lượt</td><td>Tỉ lệ thắng 30% / 15% (lệch ≤ ±2%) — mức thấp hơn được áp dụng</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-07c</td><td>F-03</td><td>Script: 10.000 lượt ở lượt ≥ 21, và 10.000 lượt sau lần vay thứ 3</td><td>Không có lượt nào thắng</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-07d</td><td>F-03</td><td>Script: chọn Sấp và chọn Ngửa, mỗi bên 10.000 lượt ở cùng mốc</td><td>Tỉ lệ thắng như nhau; kết quả luôn là mặt đã chọn khi thắng, mặt còn lại khi thua</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-07e</td><td>F-03</td><td>Tìm trong toàn bộ giao diện các chữ "50/50", "công bằng"</td><td>Không có</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-08</td><td>F-04</td><td>Vay đủ 3 lần, ép thắng 10 lượt (chế độ test)</td><td>Số dư 15.000.000 đ, hiển thị đúng định dạng, không vỡ bố cục</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-09</td><td>F-03</td><td>Bật "giảm chuyển động" trong hệ điều hành, tung xu</td><td>Không có hiệu ứng xoay, kết quả hiện ngay</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-10</td><td>F-09</td><td>Chơi 12 lượt</td><td>Lịch sử chỉ hiện 10 dòng mới nhất; thống kê đúng 12 lượt</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="tc-vay"><span class="num">5.</span>Ca test: vay &amp; nợ</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Các bước</th><th>Kết quả mong đợi</th><th>Mức</th></tr></thead>
+        <tbody>
+          <tr><td class="id">TC-11</td><td>F-05</td><td>Từ 1.000.000 đ thua 2 lượt</td><td>Số dư 0; hộp thoại vay hiện, ghi "Vay thêm 3.000.000 đ" và "còn được vay 3 lần"</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-12</td><td>F-05</td><td>Nhấn Esc / bấm ra ngoài hộp thoại vay</td><td>Hộp thoại không đóng</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-13</td><td>F-05</td><td>Bấm Vay (lần 1)</td><td>Số dư 3.000.000 đ; đã vay 1/3; nợ ván này 3.000.000 đ; lịch sử có dòng "Vay"</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-13b</td><td>F-05</td><td>Thua hết rồi vay lần 2, lần 3</td><td>Lần 2: số dư 5.000.000 đ, nợ ván này 8.000.000 đ. Lần 3: số dư 10.000.000 đ, nợ ván này 18.000.000 đ</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-14</td><td>F-05, F-06</td><td>Vay lần 3, thua tiếp 2 lượt</td><td>Không hiện hộp thoại vay; chuyển sang màn hình nợ</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-15</td><td>F-06</td><td>Ván thua đầu tiên, đọc màn hình nợ</td><td>Đúng nguyên văn: "Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-16</td><td>F-06</td><td>Ở màn hình nợ</td><td>Dòng "Đây là trò chơi giải trí, tiền trong game là tiền ảo." hiển thị</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-17</td><td>F-07</td><td>Bấm Chơi lại</td><td>Số dư 1.000.000 đ, đã vay 0/3, lịch sử rỗng, ô Nợ cũ = 18.000.000 đ; lượt tiếp theo lại có tỉ lệ thắng 80%</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-18</td><td>F-06, F-07</td><td>Thua ván thứ hai</td><td>X = 36.000.000 đ; số ván đã thua = 2</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-19</td><td>F-06</td><td>Thua 3 ván liên tiếp</td><td>X = 54.000.000 đ</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="tc-luu"><span class="num">6.</span>Ca test: lưu tiến độ</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Các bước</th><th>Kết quả mong đợi</th><th>Mức</th></tr></thead>
+        <tbody>
+          <tr><td class="id">TC-20</td><td>F-08</td><td>Chơi vài lượt, tải lại trang</td><td>Số dư, đã vay, nợ, lịch sử, thống kê, lựa chọn mặt giữ nguyên</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-21</td><td>F-03, F-08</td><td>Bấm Tung xu (ép thua) rồi tải lại ngay khi xu đang xoay</td><td>Lượt thua vẫn được tính</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-22</td><td>F-01, F-05</td><td>Tải lại khi đang ở hộp thoại vay</td><td>Hộp thoại vay hiện lại; không chơi được khi chưa vay</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-23</td><td>F-01, F-06</td><td>Tải lại khi đang ở màn hình nợ</td><td>Vẫn là màn hình nợ với cùng X</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-24</td><td>F-01</td><td>Sửa tay <code>richvip.state</code> thành chuỗi hỏng / số dư âm, tải lại</td><td>Game tạo ván mới, không lỗi; cảnh báo trong console</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-25</td><td>F-08</td><td>Mở bằng cửa sổ ẩn danh / chặn lưu trữ</td><td>Game vẫn chơi được, không lỗi</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="tc-ui"><span class="num">7.</span>Ca test: giao diện &amp; âm thanh</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Các bước</th><th>Kết quả mong đợi</th><th>Mức</th></tr></thead>
+        <tbody>
+          <tr><td class="id">TC-26</td><td>S-01…03</td><td>Xem ở 360px, 768px, 1280px</td><td>Không cuộn ngang, chữ không bị cắt, nút đủ lớn để chạm</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-27</td><td>S-01…03</td><td>Chỉ dùng bàn phím chơi hết một ván</td><td>Thao tác được mọi nút; viền tiêu điểm vàng thấy rõ</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-28</td><td>F-10</td><td>Tung xu khi âm thanh bật</td><td>Có tiếng xoay, sau đó tiếng thắng hoặc thua</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-29</td><td>F-10</td><td>Tắt âm thanh, tải lại trang, tung xu</td><td>Không có tiếng; biểu tượng loa ở trạng thái tắt</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-30</td><td>Chung</td><td>Mở DevTools, chơi một ván đầy đủ</td><td>Không có lỗi trong Console</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-31</td><td>Chung</td><td>So màu, font với <code>design/design-system.html</code></td><td>Dùng đúng token; không có mã màu tự đặt</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="nghiem-thu"><span class="num">8.</span>Tiêu chí nghiệm thu</h2>
+    <ul>
+      <li>100% ca test <span class="badge badge-red">Bắt buộc</span> đạt trên Chrome máy tính và Safari iOS.</li>
+      <li>Ít nhất 80% ca test <span class="badge badge-gold">Nên có</span> đạt; ca chưa đạt được ghi lại kèm lý do.</li>
+      <li>Câu thông báo nợ khớp nguyên văn, đúng X trong mọi trường hợp đã test.</li>
+      <li>Mở <code>index.html</code> của game là chơi được, không cần cài đặt hay server.</li>
+    </ul>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="04-quy-tac-du-lieu.html">← 04 · Quy tắc &amp; dữ liệu</a>
+      <a class="next" href="index.html">Về mục lục →</a>
+    </nav>
+  </main>
+
+  <footer>RichVip · Tài liệu thiết kế · 11/2026</footer>
+</body>
+</html>

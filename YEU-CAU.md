@@ -2,6 +2,7 @@
 
 > Tài liệu mô tả yêu cầu cho mini game chạy trên trình duyệt. **Chưa bao gồm code.**
 > Toàn bộ tiền trong game là **tiền ảo**, chỉ dùng để giải trí.
+> Cập nhật 17/11/2026 theo buổi phỏng vấn làm rõ ý tưởng. Tài liệu chi tiết: `docs/index.html`.
 
 ---
 
@@ -16,24 +17,37 @@
 
 ## 2. Luật chơi
 
-1. Khi bắt đầu, người chơi có **số dư khởi điểm 1.000.000 đ** (giá trị cấu hình được).
+1. Mỗi ván bắt đầu với **số dư 1.000.000 đ** (giá trị cấu hình được).
 2. Mỗi lượt, người chơi chọn **Sấp** hoặc **Ngửa** rồi bấm **Tung xu**.
-3. Đồng xu được tung ngẫu nhiên, xác suất **50% Sấp – 50% Ngửa**, mỗi lượt độc lập với các lượt trước.
+3. **Độ khó tăng dần (tỉ lệ thắng được điều khiển):** đồng xu *không* công bằng 50/50. Đầu ván người chơi đoán đúng nhiều; càng chơi lâu và càng vay nhiều thì càng hay sai; cuối cùng **luôn thua**. Tỉ lệ thắng mỗi lượt = mức **thấp hơn** trong hai bảng sau (giá trị cấu hình được):
+
+   | Lượt thứ (trong ván) | 1–5 | 6–10 | 11–15 | 16–20 | 21 trở đi |
+   |---|---|---|---|---|---|
+   | Tỉ lệ thắng | 80% | 60% | 40% | 20% | 0% |
+
+   | Số lần đã vay | 0 | 1 | 2 | 3 |
+   |---|---|---|---|---|
+   | Tỉ lệ thắng tối đa | (không giới hạn) | 30% | 15% | 0% |
+
+   Thắng → đồng xu ra đúng mặt người chơi chọn; thua → ra mặt còn lại. Giao diện không được ghi là "50/50" hay "ngẫu nhiên công bằng".
 4. Mức cược mỗi lượt cố định là **500.000 đ**.
 5. Kết quả:
    - **Đoán đúng:** cộng **+500.000 đ** vào số dư.
    - **Đoán sai:** trừ **−500.000 đ** khỏi số dư.
 6. **Khi số dư về 0:**
-   - Nếu số lần vay **< 3**: hiển thị hộp thoại cho phép **vay thêm 1.000.000 đ** để chơi tiếp.
-   - Người chơi bấm **Vay** → số dư thành 1.000.000 đ, số lần vay tăng 1, tổng nợ tăng 1.000.000 đ.
+   - Nếu số lần vay **< 3**: hiển thị hộp thoại cho phép **vay** để chơi tiếp. Số tiền vay tăng dần: lần 1 **3.000.000 đ**, lần 2 **5.000.000 đ**, lần 3 **10.000.000 đ**.
+   - Người chơi bấm **Vay** → số dư bằng số tiền vay, số lần vay tăng 1, nợ ván này tăng đúng số tiền vay.
    - Không thể tiếp tục chơi khi số dư bằng 0 mà chưa vay.
-7. **Giới hạn vay:** tối đa **3 lần** (tổng nợ tối đa 3.000.000 đ).
-8. **Kết thúc game (thua cuộc):** khi đã vay đủ 3 lần và số dư lại về 0 → hiển thị màn hình kết quả với thông báo:
+7. **Giới hạn vay:** tối đa **3 lần mỗi ván** (nợ mỗi ván tối đa 3 + 5 + 10 = **18.000.000 đ**).
+8. **Không có nút dừng / chốt kết quả:** ván chỉ kết thúc khi người chơi thua hết.
+9. **Kết thúc ván (thua cuộc):** khi đã vay đủ 3 lần và số dư lại về 0 → nợ ván này được cộng vào nợ cũ, rồi hiển thị màn hình kết quả với thông báo:
 
    > **Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.**
 
-   Trong đó **X** = tổng số tiền đã vay (xem mục 3).
-9. Người chơi có thể bấm **Chơi lại** để reset toàn bộ (số dư, số lần vay, nợ, lịch sử) về trạng thái ban đầu.
+   Trong đó **X** = tổng nợ cộng dồn của tất cả các ván đã thua (xem mục 3).
+10. **Chơi lại:** bắt đầu ván mới (số dư 1.000.000 đ, số lần vay 0, xoá lịch sử và thống kê ván), nhưng **nợ cũ được giữ và cộng dồn**. Trong game không có cách xoá nợ.
+11. **Lưu tiến độ:** mọi thay đổi được lưu trong trình duyệt (`localStorage`). Tải lại trang hoặc mở lại trình duyệt sẽ quay về đúng trạng thái trước đó: đang chơi, đang chờ vay, hay đang ở màn hình nợ. Kết quả tung được quyết định và lưu **trước** hiệu ứng xoay, nên tải lại trang không né được lượt thua.
+12. **Âm thanh:** có âm thanh khi tung xu, thắng, thua, vay và kết thúc ván. Mặc định bật, có nút tắt/bật và nhớ lựa chọn.
 
 ---
 
@@ -41,17 +55,20 @@
 
 | Đại lượng | Ký hiệu | Giá trị ban đầu | Quy tắc cập nhật |
 |---|---|---|---|
-| Số dư | `soDu` | 1.000.000 đ | Đúng: `+500.000`; Sai: `−500.000`; Vay: `+1.000.000` |
-| Số lần vay | `soLanVay` | 0 | `+1` mỗi lần vay, tối đa 3 |
-| Tổng nợ | `tongNo` | 0 đ | `+1.000.000` mỗi lần vay |
+| Số dư | `soDu` | 1.000.000 đ | Đúng: `+500.000`; Sai: `−500.000`; Vay: `+3.000.000` / `+5.000.000` / `+10.000.000` |
+| Số lần vay | `soLanVay` | 0 | `+1` mỗi lần vay, tối đa 3; về 0 khi chơi lại |
+| Nợ ván này | `noVanNay` | 0 đ | `+` số tiền vay (3 / 5 / 10 triệu); chuyển sang `noCu` khi kết thúc ván |
+| Nợ cũ | `noCu` | 0 đ | `+= noVanNay` khi kết thúc ván; **giữ nguyên** khi chơi lại |
+| Số ván đã thua | `soVanThua` | 0 | `+1` khi kết thúc ván; giữ nguyên khi chơi lại |
 | Số lượt đã chơi | `soLuot` | 0 | `+1` mỗi lần tung |
 | Số lượt thắng / thua | `soThang`, `soThua` | 0 / 0 | Cập nhật theo kết quả |
 
 **Quy tắc:**
-- Mức cược 500.000 đ và mức vay 1.000.000 đ đều là bội số của 500.000 đ, nên số dư luôn chia hết cho 500.000 và **không bao giờ âm** — luôn chạm đúng 0.
+- Mức cược 500.000 đ và các mức vay 3, 5, 10 triệu đều là bội số của 500.000 đ, nên số dư luôn chia hết cho 500.000 và **không bao giờ âm** — luôn chạm đúng 0.
 - Số dư có thể tăng không giới hạn khi thắng liên tục.
-- Tiền thắng **không tự động trừ nợ**; nợ chỉ được tính khi kết thúc game.
-- Khi game kết thúc: **X = `tongNo` = 3.000.000 đ** (vì chỉ kết thúc khi đã vay đủ 3 lần).
+- Tiền thắng **không tự động trừ nợ**.
+- Tổng nợ hiển thị khi đang chơi = `noCu + noVanNay`.
+- Khi ván kết thúc: **X = `noCu` = `soVanThua` × 18.000.000 đ** (ván thua thứ nhất: 18.000.000 đ; thứ hai: 36.000.000 đ; …).
 - Hiển thị tiền theo định dạng Việt Nam, có dấu chấm phân cách hàng nghìn và ký hiệu "đ" (ví dụ: `3.000.000 đ`).
 
 ---
@@ -60,11 +77,13 @@
 
 ### 4.1. Màn hình Chơi (chính)
 
-- **Tiêu đề / logo:** "RichVip".
+- **Tiêu đề / logo:** "RichVip" (dạng chữ).
+- **Nút âm thanh:** biểu tượng loa bật/tắt ở góc trên phải.
 - **Bảng thông tin:**
   - Số dư hiện tại.
   - Số lần đã vay: `n / 3`.
-  - Tổng nợ hiện tại.
+  - Nợ ván này.
+  - Nợ cũ (chỉ hiện khi lớn hơn 0).
 - **Khu vực đồng xu:** hình đồng xu ở giữa màn hình, có **hiệu ứng lật/xoay** khi tung (khoảng 1–2 giây), sau đó dừng ở mặt kết quả (Sấp hoặc Ngửa, phân biệt rõ bằng hình và chữ).
 - **Lựa chọn:** 2 nút **Sấp** và **Ngửa**; nút đang chọn được làm nổi bật.
 - **Nút "Tung xu":**
@@ -75,25 +94,25 @@
 ### 4.2. Hộp thoại Vay tiền
 
 - Hiện tự động khi số dư về 0 và `soLanVay < 3`.
-- Nội dung: "Bạn đã hết tiền! Vay thêm 1.000.000 đ để chơi tiếp? (Còn được vay X/3 lần)".
-- Nút **Vay 1.000.000 đ** → cộng tiền, đóng hộp thoại, quay lại màn hình chơi.
-- Không có cách chơi tiếp nếu không vay (có thể có nút **Chơi lại** để reset).
+- Nội dung: "Bạn đã hết tiền! Vay thêm [số tiền lần vay kế tiếp] để chơi tiếp? (Còn được vay X/3 lần)".
+- Nút **Vay [3.000.000 đ / 5.000.000 đ / 10.000.000 đ]** → cộng tiền, đóng hộp thoại, quay lại màn hình chơi.
+- Không có cách chơi tiếp nếu không vay. Hộp thoại không đóng được bằng phím Esc hay bấm ra ngoài.
 
 ### 4.3. Màn hình Kết quả (Game Over)
 
-- Hiện khi `soLanVay = 3` và số dư về 0.
-- Nội dung chính (nổi bật, cỡ chữ lớn):
+- Hiện khi `soLanVay = 3` và số dư về 0. Tải lại trang vẫn ở màn hình này.
+- Nội dung chính (nổi bật, cỡ chữ lớn), ví dụ ván thua đầu tiên:
 
-  > **Bạn nợ số tiền là 3.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.**
+  > **Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.**
 
-- Thống kê: tổng số lượt chơi, số lượt thắng, số lượt thua.
+- Thống kê ván: tổng số lượt chơi, số lượt thắng, số lượt thua; và số ván đã thua.
 - Dòng chú thích nhỏ bên dưới: *"Đây là trò chơi giải trí, tiền trong game là tiền ảo."*
-- Nút **Chơi lại**.
+- Nút **Chơi lại** (bắt đầu ván mới, nợ cũ được giữ).
 
 ### 4.4. Yêu cầu giao diện chung
 
 - Responsive: hiển thị tốt trên màn hình từ 360px (điện thoại) đến desktop, không có thanh cuộn ngang.
-- Phong cách "VIP": tông màu vàng / đen sang trọng.
+- Phong cách "VIP": tông màu vàng / đen sang trọng, dùng đúng `design/tokens.css`.
 - Ngôn ngữ giao diện: tiếng Việt.
 
 ---
@@ -106,14 +125,21 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 - [ ] Mở file `index.html` trên trình duyệt là chơi được, không cần cài đặt hay server.
 - [ ] Số dư khởi điểm hiển thị đúng 1.000.000 đ.
 - [ ] Người chơi chọn được Sấp hoặc Ngửa; không tung được khi chưa chọn.
-- [ ] Kết quả tung là ngẫu nhiên, tỉ lệ xấp xỉ 50/50 (kiểm tra qua ~1.000 lượt, mỗi mặt trong khoảng 45%–55%).
+- [ ] Tỉ lệ thắng đúng bảng độ khó: mô phỏng 10.000 lượt ở mỗi mốc, tỉ lệ thắng lệch không quá ±2% so với bảng.
+- [ ] Từ lượt 21 trong ván, hoặc sau lần vay thứ 3, người chơi **không bao giờ** thắng.
+- [ ] Giao diện không có chữ nào nói kết quả là "50/50" hay "công bằng".
 - [ ] Đoán đúng cộng đúng 500.000 đ; đoán sai trừ đúng 500.000 đ.
 - [ ] Không bấm tung liên tiếp được trong lúc đồng xu đang xoay.
-- [ ] Số dư về 0 → hiện hộp thoại vay; vay thành công cộng 1.000.000 đ và tăng bộ đếm vay.
+- [ ] Số dư về 0 → hiện hộp thoại vay; ba lần vay lần lượt cộng 3.000.000 đ, 5.000.000 đ, 10.000.000 đ và tăng bộ đếm vay.
 - [ ] Không vay được quá 3 lần.
-- [ ] Sau lần vay thứ 3, khi số dư lại về 0 → hiện màn hình kết quả với đúng câu: "Bạn nợ số tiền là 3.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."
+- [ ] Sau lần vay thứ 3, khi số dư lại về 0 → hiện màn hình kết quả với đúng câu: "Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."
 - [ ] Số dư không bao giờ hiển thị giá trị âm.
-- [ ] Nút **Chơi lại** reset toàn bộ trạng thái về ban đầu.
+- [ ] Nút **Chơi lại** bắt đầu ván mới với 1.000.000 đ và 0/3 lần vay, nhưng giữ nợ cũ.
+- [ ] Thua ván thứ hai → X = 36.000.000 đ (nợ cộng dồn).
+- [ ] Tải lại trang (khi đang chơi, đang chờ vay, hoặc ở màn hình nợ) → quay về đúng trạng thái trước đó.
+- [ ] Tải lại trang khi xu đang xoay không né được lượt thua.
+- [ ] Dữ liệu lưu bị hỏng → game tạo ván mới, không bị lỗi.
+- [ ] Có âm thanh khi tung, thắng, thua; nút tắt âm thanh hoạt động và được nhớ sau khi tải lại.
 
 ### Giao diện
 - [ ] Có hiệu ứng tung xu; mặt Sấp và Ngửa phân biệt rõ ràng.
@@ -130,8 +156,8 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 
 ## 6. Ngoài phạm vi (chưa làm)
 
-- Đăng nhập, tài khoản người dùng, bảng xếp hạng.
-- Lưu tiến trình giữa các lần mở trình duyệt.
+- Đăng nhập, tài khoản người dùng, máy chủ, bảng xếp hạng.
+- Nút dừng / chốt kết quả giữa ván.
 - Cho phép chọn mức cược khác 500.000 đ.
-- Trả nợ bằng tiền thắng trong game.
-- Âm thanh (có thể bổ sung sau).
+- Trả nợ bằng tiền thắng trong game; xoá nợ từ trong game.
+- Đồng bộ tiến độ giữa nhiều trình duyệt hoặc thiết bị.
