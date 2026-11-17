@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RichVip Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--gradient-hero) fixed, var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 var(--space-4) var(--space-16); }
+
+    /* ---------- Header ---------- */
+    .hero { padding: var(--space-12) 0 var(--space-10); text-align: center; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-10); }
+    .wordmark {
+      font-family: var(--font-display); font-weight: 900; font-size: var(--text-5xl); line-height: 1; margin: 0;
+      background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: var(--tracking-tight);
+    }
+    .hero p { color: var(--color-text-muted); margin: var(--space-3) 0 0; }
+    .eyebrow { font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--color-primary); }
+
+    section { margin-bottom: var(--space-12); }
+    h2.section-title {
+      font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 800; margin: var(--space-1) 0 var(--space-6);
+      line-height: var(--leading-tight);
+    }
+    h3.sub { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: var(--space-8) 0 var(--space-3); }
+    code { font-family: var(--font-mono); font-size: 0.85em; color: var(--gold-300); }
+
+    /* ---------- Bảng màu ---------- */
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: var(--space-3); }
+    .swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-surface); }
+    .swatch .chip { height: 64px; }
+    .swatch .meta { padding: var(--space-2) var(--space-3); font-size: var(--text-xs); line-height: var(--leading-snug); }
+    .swatch .meta b { display: block; font-weight: var(--weight-semibold); color: var(--color-text); }
+    .swatch .meta span { color: var(--color-text-subtle); font-family: var(--font-mono); }
+    .gradients { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+    .gradients .chip { height: 80px; }
+
+    /* ---------- Kiểu chữ ---------- */
+    .type-row { display: grid; grid-template-columns: 140px 1fr; gap: var(--space-4); align-items: baseline; padding: var(--space-4) 0; border-bottom: 1px solid var(--color-border); }
+    .type-row .label { font-size: var(--text-xs); color: var(--color-text-subtle); font-family: var(--font-mono); }
+    .type-row .sample { min-width: 0; overflow-wrap: anywhere; }
+    .display { font-family: var(--font-display); font-weight: 900; line-height: var(--leading-tight); }
+    .gold-text { background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .money { font-variant-numeric: tabular-nums; font-weight: var(--weight-black); }
+
+    /* ---------- Thang token ---------- */
+    .scale { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; }
+    .scale .item { text-align: center; font-size: var(--text-xs); color: var(--color-text-subtle); font-family: var(--font-mono); }
+    .scale .bar { background: var(--gradient-gold); height: 16px; border-radius: 2px; margin-bottom: var(--space-1); }
+    .scale .box { width: 64px; height: 64px; background: var(--color-surface-raised); border: 1px solid var(--color-border-gold); margin-bottom: var(--space-1); }
+
+    /* ---------- Nút bấm ---------- */
+    .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+    .btn {
+      --h: var(--control-h-md);
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      height: var(--h); padding: 0 var(--space-6); border-radius: var(--radius-pill);
+      font: var(--weight-bold) var(--text-base)/1 var(--font-body); letter-spacing: var(--tracking-wide); text-transform: uppercase;
+      border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+      transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), filter var(--duration-base), background-color var(--duration-base);
+    }
+    .btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+    .btn:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+    .btn-primary { background: var(--gradient-gold); color: var(--color-text-on-gold); box-shadow: var(--inset-shine), var(--shadow-md); }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); box-shadow: var(--inset-shine), var(--glow-gold); }
+    .btn-accent { background: var(--gradient-red); color: var(--color-text-on-red); box-shadow: var(--inset-shine), var(--shadow-md); }
+    .btn-accent:hover:not(:disabled) { filter: brightness(1.1); box-shadow: var(--inset-shine), var(--glow-red); }
+    .btn-outline { background: transparent; color: var(--gold-300); border-color: var(--color-border-gold); }
+    .btn-outline:hover:not(:disabled) { background: rgba(212, 160, 23, 0.1); border-color: var(--color-primary); }
+    .btn-ghost { background: transparent; color: var(--color-text-muted); }
+    .btn-ghost:hover:not(:disabled) { color: var(--color-text); background: var(--color-surface-raised); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.4); }
+    .btn-sm { --h: var(--control-h-sm); padding: 0 var(--space-4); font-size: var(--text-xs); }
+    .btn-lg { --h: var(--control-h-lg); padding: 0 var(--space-10); font-size: var(--text-lg); }
+
+    /* Nút chọn Sấp / Ngửa */
+    .choice { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); max-width: 420px; }
+    .choice button {
+      height: 88px; border-radius: var(--radius-lg); background: var(--color-surface-raised);
+      border: 2px solid var(--color-border-strong); color: var(--color-text);
+      font: var(--weight-black) var(--text-xl)/1 var(--font-body); letter-spacing: var(--tracking-wide); text-transform: uppercase; cursor: pointer;
+      transition: border-color var(--duration-base), box-shadow var(--duration-base), color var(--duration-base);
+    }
+    .choice button:hover { border-color: var(--color-border-gold); }
+    .choice button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+    .choice button[aria-pressed="true"] { border-color: var(--color-primary); box-shadow: var(--glow-gold); color: var(--gold-300); }
+
+    /* ---------- Ô nhập ---------- */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-6); }
+    .field { display: flex; flex-direction: column; gap: var(--space-2); }
+    .field label { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+    .input, .select {
+      height: var(--control-h-md); padding: 0 var(--space-4); width: 100%;
+      background: var(--color-surface-sunken); color: var(--color-text);
+      border: 1px solid var(--color-border-strong); border-radius: var(--radius-md);
+      font: var(--weight-medium) var(--text-base)/1 var(--font-body);
+      transition: border-color var(--duration-base), box-shadow var(--duration-base);
+    }
+    .input::placeholder { color: var(--color-text-subtle); }
+    .input:hover, .select:hover { border-color: var(--ink-500); }
+    .input:focus, .select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.25); }
+    .input:disabled { opacity: 0.5; cursor: not-allowed; }
+    .field.is-error .input { border-color: var(--color-danger); }
+    .field.is-error .input:focus { box-shadow: 0 0 0 3px rgba(240, 62, 62, 0.25); }
+    .hint { font-size: var(--text-xs); color: var(--color-text-subtle); }
+    .field.is-error .hint { color: var(--color-danger); }
+    .input-group { position: relative; }
+    .input-group .input { padding-right: var(--space-10); font-variant-numeric: tabular-nums; }
+    .input-group .suffix { position: absolute; right: var(--space-4); top: 50%; transform: translateY(-50%); color: var(--gold-300); font-weight: var(--weight-bold); pointer-events: none; }
+
+    /* ---------- Thẻ ---------- */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-5); }
+    .card {
+      background: var(--gradient-card); border: 1px solid var(--color-border); border-radius: var(--radius-xl);
+      padding: var(--space-6); box-shadow: var(--shadow-lg); min-width: 0;
+    }
+    .card-gold { border-color: var(--color-border-gold); box-shadow: var(--shadow-lg), 0 0 24px rgba(212, 160, 23, 0.12); }
+    .card h4 { margin: 0 0 var(--space-1); font-size: var(--text-lg); font-weight: var(--weight-bold); }
+    .card p { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .stat { font-size: var(--text-4xl); line-height: 1.1; margin: var(--space-2) 0 var(--space-4); }
+    .stat-row { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; border-top: 1px solid var(--color-border); font-size: var(--text-sm); }
+    .stat-row span:first-child { color: var(--color-text-muted); }
+    .badge { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--space-3); border-radius: var(--radius-pill); font-size: var(--text-xs); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; }
+    .badge-gold { background: rgba(212, 160, 23, 0.15); color: var(--gold-300); border: 1px solid var(--color-border-gold); }
+    .badge-win { background: rgba(25, 179, 95, 0.15); color: var(--green-400); }
+    .badge-lose { background: rgba(208, 18, 27, 0.18); color: var(--red-300); }
+    .result { text-align: center; }
+    .coin {
+      width: 96px; height: 96px; margin: 0 auto var(--space-4); border-radius: var(--radius-full);
+      background: var(--gradient-gold); box-shadow: var(--inset-shine), var(--glow-gold);
+      display: grid; place-items: center; color: var(--color-text-on-gold);
+      font: 900 var(--text-xl)/1 var(--font-display);
+      border: 4px solid var(--gold-600);
+    }
+    .delta-win { color: var(--green-400); }
+    .delta-lose { color: var(--red-300); }
+    .card .actions { margin-top: var(--space-5); display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+    @media (max-width: 560px) {
+      .wordmark { font-size: var(--text-4xl); }
+      .type-row { grid-template-columns: 1fr; gap: var(--space-1); }
+      .btn-lg { padding: 0 var(--space-6); }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Design System · v1.0</div>
+      <h1 class="wordmark">RichVip</h1>
+      <p>Nền tối, vàng ánh kim, đỏ nổi bật. Mọi giá trị lấy từ <code>tokens.css</code>.</p>
+    </header>
+
+    <!-- ===== Bảng màu ===== -->
+    <section>
+      <div class="eyebrow">01</div>
+      <h2 class="section-title">Bảng màu</h2>
+      <h3 class="sub">Vàng — chủ đạo</h3>
+      <div class="swatches" data-scale="gold" data-steps="50,100,200,300,400,500,600,700,800"></div>
+      <h3 class="sub">Đỏ — nhấn</h3>
+      <div class="swatches" data-scale="red" data-steps="300,400,500,600,700"></div>
+      <h3 class="sub">Xanh — thắng</h3>
+      <div class="swatches" data-scale="green" data-steps="400,500,600"></div>
+      <h3 class="sub">Mực — nền &amp; chữ</h3>
+      <div class="swatches" data-scale="ink" data-steps="950,900,850,800,700,600,500,400,300,200,100"></div>
+      <h3 class="sub">Màu theo vai trò</h3>
+      <div class="swatches" data-vars="color-bg,color-surface,color-surface-raised,color-border,color-text,color-text-muted,color-primary,color-accent,color-success,color-danger"></div>
+      <h3 class="sub">Gradient</h3>
+      <div class="gradients">
+        <div class="swatch"><div class="chip" style="background:var(--gradient-gold)"></div><div class="meta"><b>Gold</b><span>--gradient-gold</span></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--gradient-red)"></div><div class="meta"><b>Red</b><span>--gradient-red</span></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--gradient-hero)"></div><div class="meta"><b>Hero</b><span>--gradient-hero</span></div></div>
+        <div class="swatch"><div class="chip" style="background:var(--gradient-card)"></div><div class="meta"><b>Card</b><span>--gradient-card</span></div></div>
+      </div>
+    </section>
+
+    <!-- ===== Kiểu chữ ===== -->
+    <section>
+      <div class="eyebrow">02</div>
+      <h2 class="section-title">Kiểu chữ</h2>
+      <p style="color:var(--color-text-muted);margin-top:0">Tiêu đề: <b>Playfair Display</b> · Nội dung: <b>Be Vietnam Pro</b> — cả hai hỗ trợ đầy đủ dấu tiếng Việt.</p>
+      <div class="type-row"><div class="label">5xl · display</div><div class="sample display gold-text" style="font-size:var(--text-5xl)">Đại Phú Quý</div></div>
+      <div class="type-row"><div class="label">4xl · display</div><div class="sample display" style="font-size:var(--text-4xl)">Sấp hay Ngửa?</div></div>
+      <div class="type-row"><div class="label">3xl · display</div><div class="sample display" style="font-size:var(--text-3xl)">Bạn đoán đúng!</div></div>
+      <div class="type-row"><div class="label">2xl · bold</div><div class="sample" style="font-size:var(--text-2xl);font-weight:700">Lịch sử lượt chơi</div></div>
+      <div class="type-row"><div class="label">xl · semibold</div><div class="sample" style="font-size:var(--text-xl);font-weight:600">Số lần đã vay: 1 / 3</div></div>
+      <div class="type-row"><div class="label">base · regular</div><div class="sample">Chọn Sấp hoặc Ngửa, rồi bấm Tung xu. Đoán đúng được cộng tiền, đoán sai bị trừ tiền.</div></div>
+      <div class="type-row"><div class="label">sm · muted</div><div class="sample" style="font-size:var(--text-sm);color:var(--color-text-muted)">Tiền trong game là tiền ảo, chỉ dùng để giải trí.</div></div>
+      <div class="type-row"><div class="label">xs · caps</div><div class="sample eyebrow">Bàn chơi VIP</div></div>
+      <div class="type-row"><div class="label">số tiền</div><div class="sample money gold-text" style="font-size:var(--text-4xl)">1.500.000 đ</div></div>
+    </section>
+
+    <!-- ===== Khoảng cách & bo góc ===== -->
+    <section>
+      <div class="eyebrow">03</div>
+      <h2 class="section-title">Khoảng cách &amp; bo góc</h2>
+      <h3 class="sub">Khoảng cách (bước 4px)</h3>
+      <div class="scale" id="spaceScale"></div>
+      <h3 class="sub">Bo góc</h3>
+      <div class="scale" id="radiusScale"></div>
+    </section>
+
+    <!-- ===== Nút bấm ===== -->
+    <section>
+      <div class="eyebrow">04</div>
+      <h2 class="section-title">Nút bấm</h2>
+      <h3 class="sub">Kiểu</h3>
+      <div class="row">
+        <button class="btn btn-primary">Tung xu</button>
+        <button class="btn btn-accent">Vay 1.000.000 đ</button>
+        <button class="btn btn-outline">Chơi lại</button>
+        <button class="btn btn-ghost">Luật chơi</button>
+        <button class="btn btn-primary" disabled>Đang tung…</button>
+      </div>
+      <h3 class="sub">Kích thước</h3>
+      <div class="row">
+        <button class="btn btn-primary btn-sm">Nhỏ</button>
+        <button class="btn btn-primary">Vừa</button>
+        <button class="btn btn-primary btn-lg">Lớn</button>
+      </div>
+      <h3 class="sub">Chọn Sấp / Ngửa (bấm thử)</h3>
+      <div class="choice" role="group" aria-label="Chọn mặt đồng xu">
+        <button type="button" aria-pressed="true">Sấp</button>
+        <button type="button" aria-pressed="false">Ngửa</button>
+      </div>
+    </section>
+
+    <!-- ===== Ô nhập ===== -->
+    <section>
+      <div class="eyebrow">05</div>
+      <h2 class="section-title">Ô nhập</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="f-name">Tên người chơi</label>
+          <input id="f-name" class="input" type="text" placeholder="Nhập tên của bạn">
+          <span class="hint">Tối đa 20 ký tự.</span>
+        </div>
+        <div class="field">
+          <label for="f-bet">Mức cược</label>
+          <div class="input-group">
+            <input id="f-bet" class="input" type="text" inputmode="numeric" value="500.000">
+            <span class="suffix">đ</span>
+          </div>
+          <span class="hint">Mức cược cố định mỗi lượt.</span>
+        </div>
+        <div class="field is-error">
+          <label for="f-err">Số tiền vay</label>
+          <input id="f-err" class="input" type="text" value="5.000.000" aria-invalid="true" aria-describedby="f-err-hint">
+          <span class="hint" id="f-err-hint">Chỉ được vay tối đa 1.000.000 đ mỗi lần.</span>
+        </div>
+        <div class="field">
+          <label for="f-select">Bàn chơi</label>
+          <select id="f-select" class="select">
+            <option>Bàn Vàng</option>
+            <option>Bàn Kim Cương</option>
+            <option>Bàn Hoàng Gia</option>
+          </select>
+          <span class="hint">Dạng chọn từ danh sách.</span>
+        </div>
+        <div class="field">
+          <label for="f-dis">Mã giới thiệu</label>
+          <input id="f-dis" class="input" type="text" placeholder="Không khả dụng" disabled>
+          <span class="hint">Trạng thái vô hiệu hoá.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Thẻ ===== -->
+    <section>
+      <div class="eyebrow">06</div>
+      <h2 class="section-title">Thẻ</h2>
+      <div class="cards">
+        <article class="card card-gold">
+          <span class="badge badge-gold">Số dư</span>
+          <div class="stat money gold-text">1.500.000 đ</div>
+          <div class="stat-row"><span>Đã vay</span><span>1 / 3 lần</span></div>
+          <div class="stat-row"><span>Tổng nợ</span><span class="money">1.000.000 đ</span></div>
+        </article>
+
+        <article class="card result">
+          <div class="coin">NGỬA</div>
+          <span class="badge badge-win">Đoán đúng</span>
+          <div class="stat money delta-win" style="font-size:var(--text-3xl)">+500.000 đ</div>
+          <p>Bạn chọn Ngửa — đồng xu ra Ngửa.</p>
+        </article>
+
+        <article class="card">
+          <h4>Lịch sử gần đây</h4>
+          <p>3 lượt mới nhất</p>
+          <div class="stat-row" style="margin-top:var(--space-4)"><span>Sấp → Ngửa</span><span class="badge badge-lose">−500K</span></div>
+          <div class="stat-row"><span>Ngửa → Ngửa</span><span class="badge badge-win">+500K</span></div>
+          <div class="stat-row"><span>Sấp → Sấp</span><span class="badge badge-win">+500K</span></div>
+        </article>
+
+        <article class="card">
+          <h4>Hết tiền rồi!</h4>
+          <p>Vay thêm 1.000.000 đ để chơi tiếp? Còn được vay 2 lần.</p>
+          <div class="actions">
+            <button class="btn btn-accent btn-sm">Vay ngay</button>
+            <button class="btn btn-ghost btn-sm">Để sau</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Đọc giá trị token trực tiếp từ tokens.css để trang luôn khớp với file token.
+    const css = getComputedStyle(document.documentElement);
+    const v = (name) => css.getPropertyValue('--' + name).trim();
+    const swatch = (label, varName) => {
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      el.innerHTML = `<div class="chip" style="background:var(--${varName})"></div>
+        <div class="meta"><b>${label}</b><span>--${varName}</span><br><span>${v(varName)}</span></div>`;
+      return el;
+    };
+    document.querySelectorAll('[data-scale]').forEach((box) => {
+      const scale = box.dataset.scale;
+      box.dataset.steps.split(',').forEach((s) => box.appendChild(swatch(`${scale} ${s}`, `${scale}-${s}`)));
+    });
+    document.querySelectorAll('[data-vars]').forEach((box) => {
+      box.dataset.vars.split(',').forEach((n) => box.appendChild(swatch(n.replace('color-', ''), n)));
+    });
+
+    const spaceBox = document.getElementById('spaceScale');
+    ['1', '2', '3', '4', '5', '6', '8', '10', '12', '16'].forEach((s) => {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `<div class="bar" style="width:var(--space-${s})"></div>space-${s}<br>${v('space-' + s)}`;
+      spaceBox.appendChild(el);
+    });
+    const radiusBox = document.getElementById('radiusScale');
+    ['xs', 'sm', 'md', 'lg', 'xl', 'pill'].forEach((r) => {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `<div class="box" style="border-radius:var(--radius-${r})"></div>radius-${r}<br>${v('radius-' + r)}`;
+      radiusBox.appendChild(el);
+    });
+
+    // Nút chọn Sấp / Ngửa
+    document.querySelectorAll('.choice button').forEach((btn, _, all) => {
+      btn.addEventListener('click', () => all.forEach((b) => b.setAttribute('aria-pressed', String(b === btn))));
+    });
+  </script>
+</body>
+</html>

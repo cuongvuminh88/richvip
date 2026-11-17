@@ -1,0 +1,147 @@
+/* ==========================================================================
+   RichVip — Design tokens
+   Phong cách: sòng bài cao cấp — nền tối, vàng ánh kim, đỏ nổi bật.
+   Dùng: <link rel="stylesheet" href="design/tokens.css">
+   Font (Google Fonts, hỗ trợ tiếng Việt):
+   https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap
+   ========================================================================== */
+
+:root {
+  /* ---------- Màu gốc (palette) ---------- */
+  --gold-50:  #fff8e1;
+  --gold-100: #ffecb3;
+  --gold-200: #ffe082;
+  --gold-300: #f7cf5c;
+  --gold-400: #ecb93a;
+  --gold-500: #d4a017;   /* vàng chủ đạo */
+  --gold-600: #b3850f;
+  --gold-700: #8a650b;
+  --gold-800: #5e4508;
+
+  --red-300: #ff6b6b;
+  --red-400: #f03e3e;
+  --red-500: #d0121b;    /* đỏ nhấn */
+  --red-600: #a80d15;
+  --red-700: #7a0910;
+
+  --green-400: #2fd47a;
+  --green-500: #19b35f;
+  --green-600: #0f8a47;
+
+  --ink-950: #07070a;
+  --ink-900: #0d0d12;
+  --ink-850: #13131a;
+  --ink-800: #1a1a23;
+  --ink-700: #24242f;
+  --ink-600: #32323f;
+  --ink-500: #4a4a5a;
+  --ink-400: #6e6e80;
+  --ink-300: #9a9aab;
+  --ink-200: #c6c6d2;
+  --ink-100: #ececf2;
+  --white:   #ffffff;
+
+  /* ---------- Màu theo vai trò (semantic) ---------- */
+  --color-bg:              var(--ink-950);
+  --color-surface:         var(--ink-900);
+  --color-surface-raised:  var(--ink-800);
+  --color-surface-sunken:  var(--ink-850);
+  --color-border:          var(--ink-700);
+  --color-border-strong:   var(--ink-600);
+  --color-border-gold:     rgba(212, 160, 23, 0.45);
+
+  --color-text:            var(--ink-100);
+  --color-text-muted:      var(--ink-300);
+  --color-text-subtle:     var(--ink-400);
+  --color-text-on-gold:    #1a1200;
+  --color-text-on-red:     var(--white);
+
+  --color-primary:         var(--gold-500);
+  --color-primary-hover:   var(--gold-400);
+  --color-primary-active:  var(--gold-600);
+  --color-accent:          var(--red-500);
+  --color-accent-hover:    var(--red-400);
+  --color-accent-active:   var(--red-600);
+
+  --color-success:         var(--green-500);
+  --color-danger:          var(--red-400);
+  --color-warning:         var(--gold-300);
+  --color-focus:           var(--gold-300);
+
+  /* Gradient ánh kim */
+  --gradient-gold:  linear-gradient(180deg, #ffe58a 0%, #f2c440 38%, #d4a017 62%, #a87a0c 100%);
+  --gradient-red:   linear-gradient(180deg, #ff4a52 0%, #d0121b 55%, #8f0b12 100%);
+  --gradient-hero:  radial-gradient(120% 80% at 50% 0%, #2a1f06 0%, #0d0d12 55%, #07070a 100%);
+  --gradient-card:  linear-gradient(160deg, #1d1d27 0%, #121218 100%);
+
+  /* ---------- Kiểu chữ ---------- */
+  --font-display: "Playfair Display", "Times New Roman", serif;
+  --font-body:    "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    800;
+
+  /* ---------- Cỡ chữ (thang 1.25) ---------- */
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.5rem;    /* 40px */
+  --text-5xl:  3.25rem;   /* 52px */
+
+  --leading-tight:  1.15;
+  --leading-snug:   1.35;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.01em;
+  --tracking-wide:  0.06em;
+  --tracking-caps:  0.12em;
+
+  /* ---------- Khoảng cách (bước 4px) ---------- */
+  --space-0:  0;
+  --space-1:  0.25rem;  /* 4px  */
+  --space-2:  0.5rem;   /* 8px  */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ---------- Bo góc ---------- */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+
+  /* ---------- Đổ bóng & phát sáng ---------- */
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md:   0 6px 18px rgba(0, 0, 0, 0.55);
+  --shadow-lg:   0 16px 40px rgba(0, 0, 0, 0.65);
+  --glow-gold:   0 0 0 1px rgba(212, 160, 23, 0.5), 0 0 18px rgba(236, 185, 58, 0.35);
+  --glow-red:    0 0 0 1px rgba(240, 62, 62, 0.5), 0 0 18px rgba(208, 18, 27, 0.35);
+  --inset-shine: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  /* ---------- Chuyển động ---------- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---------- Kích thước điều khiển ---------- */
+  --control-h-sm: 2rem;     /* 32px */
+  --control-h-md: 2.75rem;  /* 44px */
+  --control-h-lg: 3.5rem;   /* 56px */
+}
