@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RichVip — Kiểm thử logic</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Playfair+Display:wght@900&display=swap">
+  <link rel="stylesheet" href="../design/tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: var(--text-sm); line-height: var(--leading-normal); }
+    main { max-width: 960px; margin: 0 auto; padding: var(--space-8) var(--space-4) var(--space-16); }
+    h1 { font-family: var(--font-display); font-weight: 900; font-size: var(--text-3xl); margin: 0 0 var(--space-2); background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    p { color: var(--color-text-muted); margin: 0 0 var(--space-4); }
+    .summary { font-size: var(--text-lg); font-weight: var(--weight-bold); color: var(--color-text); }
+    .wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); vertical-align: top; }
+    th { color: var(--gold-300); background: var(--color-surface-raised); white-space: nowrap; }
+    td.id { font-family: var(--font-mono); color: var(--gold-300); white-space: nowrap; }
+    .ok { color: var(--green-400); font-weight: var(--weight-bold); white-space: nowrap; }
+    .fail { color: var(--red-300); font-weight: var(--weight-bold); white-space: nowrap; }
+    td.detail { color: var(--color-text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
+    button { font: inherit; font-weight: var(--weight-bold); margin-bottom: var(--space-4); padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); border: 1px solid var(--color-border-gold); background: transparent; color: var(--gold-300); cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Kiểm thử logic RichVip</h1>
+    <p>Chạy các ca test tự động trong docs/05-ke-hoach-test.html bằng logic thuần của <code>game.js</code> (không đụng giao diện). Ca test giao diện, âm thanh và lưu trữ thật được kiểm tra trên <code>index.html</code>.</p>
+    <p id="tong" class="summary">Đang chạy…</p>
+    <button type="button" id="chay-lai">Chạy lại</button>
+    <div class="wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Nội dung</th><th>Kết quả</th><th>Chi tiết</th></tr></thead>
+        <tbody id="ket-qua"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="game.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const L = window.RichVipLogic;
+    const C = L.CAU_HINH;
+    const N = 10000;
+    const tien = L.dinhDangTien;
+
+    // Tạo trạng thái đang chơi ở một mốc bất kỳ (số dư lớn để không hết tiền giữa chừng).
+    function mau({ soLuot = 0, soLanVay = 0, luaChon = 'ngua' } = {}) {
+      const s = L.taoVanMoi(0, 0, luaChon);
+      s.soLanVay = soLanVay;
+      s.noVanNay = L.NO_SAU_LAN_VAY[soLanVay];
+      s.soDu = 100 * C.MUC_CUOC;
+      s.thongKe = { soLuot, soThang: 0, soThua: soLuot };
+      return s;
+    }
+    function tiLeMoPhong(s, n = N) {
+      let thang = 0, dungMat = true;
+      for (let i = 0; i < n; i++) {
+        const kq = L.tungXu(s);
+        if (kq.dung) thang++;
+        if ((kq.ketQua === s.luaChon) !== kq.dung) dungMat = false;
+      }
+      return { tiLe: thang / n, dungMat };
+    }
+    function chuoi(s, cacEp) {
+      for (const ep of cacEp) {
+        if (s.trangThai === 'cho-vay') s = L.vay(s);
+        const kq = L.tungXu(s, { ep });
+        if (!kq) throw new Error('Không tung được ở trạng thái ' + s.trangThai);
+        s = kq.state;
+      }
+      return s;
+    }
+    // Thua đến khi hết ván (vay khi cần). Trả về state ket-thuc.
+    function thuaHetVan(s) {
+      let guard = 0;
+      while (s.trangThai !== 'ket-thuc') {
+        if (++guard > 500) throw new Error('Ván không kết thúc');
+        if (s.trangThai === 'cho-vay') { s = L.vay(s); continue; }
+        s = L.tungXu(s, { ep: s.luaChon === 'sap' ? 'ngua' : 'sap' }).state;
+      }
+      return s;
+    }
+
+    const tests = [];
+    const tc = (id, ten, fn) => tests.push({ id, ten, fn });
+
+    // ---------- TC-07: tỉ lệ thắng theo mốc lượt ----------
+    [[0, 0.8, '1–5'], [5, 0.6, '6–10'], [10, 0.4, '11–15'], [15, 0.2, '16–20']].forEach(([soLuot, mong, nhan]) => {
+      tc('TC-07', 'Lượt ' + nhan + ', chưa vay: tỉ lệ thắng ' + mong * 100 + '% (±2%)', () => {
+        const { tiLe } = tiLeMoPhong(mau({ soLuot }));
+        return [Math.abs(tiLe - mong) <= 0.02, 'đo được ' + (tiLe * 100).toFixed(2) + '% / ' + N + ' lượt'];
+      });
+    });
+    // ---------- TC-07b: giới hạn theo số lần vay ----------
+    [[1, 0.3], [2, 0.15]].forEach(([lan, mong]) => {
+      tc('TC-07b', 'Lượt 1–5, đã vay ' + lan + ' lần: tỉ lệ thắng ' + mong * 100 + '% (±2%)', () => {
+        const { tiLe } = tiLeMoPhong(mau({ soLanVay: lan }));
+        return [Math.abs(tiLe - mong) <= 0.02, 'đo được ' + (tiLe * 100).toFixed(2) + '%'];
+      });
+    });
+    // ---------- TC-07c: luôn thua ----------
+    tc('TC-07c', 'Lượt ≥ 21: không có lượt nào thắng', () => {
+      let thang = 0;
+      for (const soLuot of [20, 25, 40, 100]) thang += tiLeMoPhong(mau({ soLuot }), N / 4).tiLe;
+      return [thang === 0, 'số lượt thắng: ' + thang];
+    });
+    tc('TC-07c', 'Sau lần vay thứ 3: không có lượt nào thắng', () => {
+      const { tiLe } = tiLeMoPhong(mau({ soLanVay: 3 }));
+      return [tiLe === 0, 'tỉ lệ thắng: ' + tiLe];
+    });
+    // ---------- TC-07d: Sấp và Ngửa như nhau ----------
+    tc('TC-07d', 'Chọn Sấp và chọn Ngửa có cùng tỉ lệ; thắng ⇔ ra đúng mặt đã chọn', () => {
+      const a = tiLeMoPhong(mau({ luaChon: 'sap' }));
+      const b = tiLeMoPhong(mau({ luaChon: 'ngua' }));
+      return [Math.abs(a.tiLe - b.tiLe) <= 0.03 && a.dungMat && b.dungMat,
+        'Sấp ' + (a.tiLe * 100).toFixed(2) + '% · Ngửa ' + (b.tiLe * 100).toFixed(2) + '%'];
+    });
+
+    // ---------- Tính tiền ----------
+    tc('TC-01', 'Ván mới: số dư 1.000.000 đ, đã vay 0/3, nợ cũ 0', () => {
+      const s = L.taoVanMoi();
+      return [s.soDu === 1000000 && s.soLanVay === 0 && s.noCu === 0 && s.noVanNay === 0, tien(s.soDu)];
+    });
+    tc('TC-02', 'Chưa chọn mặt thì không tung được', () => [L.tungXu(L.taoVanMoi()) === null, 'tungXu trả về null']);
+    tc('TC-04', 'Chọn Ngửa, ép Ngửa: +500.000 đ, thắng 1', () => {
+      const kq = L.tungXu(L.taoVanMoi(0, 0, 'ngua'), { ep: 'ngua' });
+      return [kq.dung && kq.state.soDu === 1500000 && kq.state.thongKe.soThang === 1 && kq.state.matXuCuoi === 'ngua', tien(kq.state.soDu)];
+    });
+    tc('TC-05', 'Chọn Ngửa, ép Sấp: −500.000 đ, thua 1', () => {
+      const kq = L.tungXu(L.taoVanMoi(0, 0, 'ngua'), { ep: 'sap' });
+      return [!kq.dung && kq.state.soDu === 500000 && kq.state.thongKe.soThua === 1, tien(kq.state.soDu)];
+    });
+    tc('TC-08', 'Vay đủ 3 lần, ép thắng 10 lượt: số dư 15.000.000 đ', () => {
+      let s = L.taoVanMoi(0, 0, 'ngua');
+      s = chuoi(s, ['sap', 'sap']); s = L.vay(s);                       // 3tr
+      s = chuoi(s, Array(6).fill('sap')); s = L.vay(s);                 // 5tr
+      s = chuoi(s, Array(10).fill('sap')); s = L.vay(s);                // 10tr
+      s = chuoi(s, Array(10).fill('ngua'));
+      return [s.soDu === 15000000 && s.soLanVay === 3, tien(s.soDu) + ' → hiển thị "' + tien(s.soDu) + '"'];
+    });
+    tc('TC-10', 'Chơi 12 lượt: lịch sử giữ 10 dòng mới nhất, thống kê 12 lượt', () => {
+      let s = L.taoVanMoi(0, 0, 'ngua');
+      s = chuoi(s, Array.from({ length: 12 }, (_, i) => (i % 2 ? 'sap' : 'ngua')));
+      return [s.lichSu.length === 10 && s.thongKe.soLuot === 12 && s.lichSu[0].ketQua === 'sap', s.lichSu.length + ' dòng, ' + s.thongKe.soLuot + ' lượt'];
+    });
+
+    // ---------- Vay & nợ ----------
+    tc('TC-11', 'Thua 2 lượt từ 1.000.000 đ → chờ vay, lần vay kế tiếp 3.000.000 đ, còn 3 lần', () => {
+      const s = chuoi(L.taoVanMoi(0, 0, 'ngua'), ['sap', 'sap']);
+      return [s.trangThai === 'cho-vay' && s.soDu === 0 && L.mucVayKeTiep(s) === 3000000 && 3 - s.soLanVay === 3, s.trangThai];
+    });
+    tc('TC-11', 'Không tung được khi đang chờ vay', () => {
+      const s = chuoi(L.taoVanMoi(0, 0, 'ngua'), ['sap', 'sap']);
+      return [L.tungXu(s, { ep: 'ngua' }) === null, 'tungXu trả về null'];
+    });
+    tc('TC-13', 'Vay lần 1: số dư 3.000.000 đ, đã vay 1, nợ ván này 3.000.000 đ, lịch sử có dòng vay', () => {
+      const s = L.vay(chuoi(L.taoVanMoi(0, 0, 'ngua'), ['sap', 'sap']));
+      return [s.soDu === 3000000 && s.soLanVay === 1 && s.noVanNay === 3000000 && s.lichSu[0].loai === 'vay', tien(s.noVanNay)];
+    });
+    tc('TC-13b', 'Vay lần 2 và 3: số dư 5tr / 10tr; nợ ván này 8tr / 18tr', () => {
+      let s = L.vay(chuoi(L.taoVanMoi(0, 0, 'ngua'), ['sap', 'sap']));
+      s = L.vay(chuoi(s, Array(6).fill('sap')));
+      const lan2 = s.soDu === 5000000 && s.noVanNay === 8000000;
+      s = L.vay(chuoi(s, Array(10).fill('sap')));
+      const lan3 = s.soDu === 10000000 && s.noVanNay === 18000000;
+      return [lan2 && lan3, 'lần 2 ' + lan2 + ', lần 3 ' + lan3];
+    });
+    tc('TC-05·F-05', 'Không vay được khi số dư > 0, và không vay được lần thứ 4', () => {
+      const conTien = L.vay(L.taoVanMoi(0, 0, 'ngua')) === null;
+      const s = thuaHetVan(L.taoVanMoi(0, 0, 'ngua'));
+      return [conTien && L.vay(s) === null && s.soLanVay === 3, 'vay khi còn tiền: null · vay lần 4: null'];
+    });
+    tc('TC-14', 'Sau lần vay 3, thua hết → kết thúc ván, không có hộp thoại vay', () => {
+      let s = L.taoVanMoi(0, 0, 'ngua');
+      s = L.vay(chuoi(s, ['sap', 'sap'])); s = L.vay(chuoi(s, Array(6).fill('sap'))); s = L.vay(chuoi(s, Array(10).fill('sap')));
+      s = chuoi(s, Array(19).fill('sap'));
+      const truocCuoi = s.trangThai === 'dang-choi';
+      s = chuoi(s, ['sap']);
+      return [truocCuoi && s.trangThai === 'ket-thuc', s.trangThai];
+    });
+    tc('TC-15', 'Câu thông báo nợ ván đầu khớp nguyên văn', () => {
+      const s = thuaHetVan(L.taoVanMoi(0, 0, 'ngua'));
+      const cau = L.cauThongBaoNo(s);
+      const mong = 'Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.';
+      return [cau.replace(/ /g, ' ') === mong, cau];
+    });
+    tc('TC-17', 'Chơi lại: 1.000.000 đ, 0 lần vay, lịch sử rỗng, nợ cũ 18.000.000 đ, tỉ lệ lượt đầu 80%', () => {
+      const s = L.choiLai(thuaHetVan(L.taoVanMoi(0, 0, 'ngua')));
+      return [s.soDu === 1000000 && s.soLanVay === 0 && s.lichSu.length === 0 && s.noCu === 18000000 && L.tiLeThang(s) === 0.8, tien(s.noCu)];
+    });
+    tc('TC-18', 'Thua ván thứ hai: X = 36.000.000 đ, số ván đã thua 2', () => {
+      const s = thuaHetVan(L.choiLai(thuaHetVan(L.taoVanMoi(0, 0, 'ngua'))));
+      return [s.noCu === 36000000 && s.soVanThua === 2 && L.cauThongBaoNo(s).includes('36.000.000'), tien(s.noCu)];
+    });
+    tc('TC-19', 'Thua 3 ván: X = 54.000.000 đ', () => {
+      let s = L.taoVanMoi(0, 0, 'ngua');
+      for (let i = 0; i < 3; i++) { s = thuaHetVan(s); if (i < 2) s = L.choiLai(s); }
+      return [s.noCu === 54000000, tien(s.noCu)];
+    });
+    tc('Ví dụ §5', 'Ví dụ một ván trong docs/04 §5 cho đúng các con số', () => {
+      const W = 'ngua', T = 'sap';
+      let s = L.taoVanMoi(18000000, 1, 'ngua');
+      const kt = [];
+      s = chuoi(s, [W, W, T, W, W]); kt.push(s.soDu === 2500000);
+      s = chuoi(s, [W, W, W, T, T]); kt.push(s.soDu === 3000000);
+      s = chuoi(s, [W, W, T, T, T]); kt.push(s.soDu === 2500000);
+      s = chuoi(s, [W, T, T, T, T]); kt.push(s.soDu === 1000000);
+      s = chuoi(s, [T, T]); kt.push(s.trangThai === 'cho-vay');
+      s = L.vay(s); kt.push(s.soDu === 3000000 && s.noVanNay === 3000000);
+      s = L.vay(chuoi(s, Array(6).fill(T))); kt.push(s.soDu === 5000000 && s.noVanNay === 8000000);
+      s = L.vay(chuoi(s, Array(10).fill(T))); kt.push(s.soDu === 10000000 && s.noVanNay === 18000000);
+      s = chuoi(s, Array(20).fill(T)); kt.push(s.trangThai === 'ket-thuc' && s.noCu === 36000000 && s.thongKe.soLuot === 58);
+      return [kt.every(Boolean), kt.map((x) => (x ? '✓' : '✗')).join(' ')];
+    });
+
+    // ---------- Dữ liệu ----------
+    tc('TC-24', 'Kiểm tra dữ liệu: mẫu trong docs/04 §6 hợp lệ', () => {
+      const s = { version: 1, trangThai: 'dang-choi', soDu: 1500000, soLanVay: 1, noVanNay: 3000000, noCu: 18000000, soVanThua: 1,
+        luaChon: 'ngua', matXuCuoi: 'ngua', thongKe: { soLuot: 4, soThang: 2, soThua: 2 },
+        lichSu: [{ loai: 'tung', chon: 'ngua', ketQua: 'ngua', dung: true, soDuSau: 1500000 }, { loai: 'vay', soTien: 3000000, soDuSau: 3000000 }] };
+      const loi = L.kiemTra(s);
+      return [loi === '', loi || 'hợp lệ'];
+    });
+    tc('TC-24', 'Kiểm tra dữ liệu: các mẫu hỏng đều bị từ chối', () => {
+      const tot = () => L.taoVanMoi(0, 0, 'ngua');
+      const hong = [
+        null, 'abc', [], {},
+        Object.assign(tot(), { soDu: -500000 }),
+        Object.assign(tot(), { soDu: 1234 }),
+        Object.assign(tot(), { version: 2 }),
+        Object.assign(tot(), { trangThai: 'la' }),
+        Object.assign(tot(), { soLanVay: 4 }),
+        Object.assign(tot(), { soLanVay: 1 }),               // nợ không khớp
+        Object.assign(tot(), { noCu: 5000000 }),             // nợ cũ không khớp số ván
+        Object.assign(tot(), { trangThai: 'cho-vay' }),      // chờ vay khi còn tiền
+        Object.assign(tot(), { trangThai: 'ket-thuc' }),
+        Object.assign(tot(), { luaChon: 'giua' }),
+        Object.assign(tot(), { thongKe: { soLuot: 3, soThang: 1, soThua: 1 } }),
+        Object.assign(tot(), { lichSu: Array(11).fill({ loai: 'vay', soTien: 3000000, soDuSau: 3000000 }) }),
+      ];
+      const lot = hong.filter((s) => L.kiemTra(s) === '');
+      return [lot.length === 0, (hong.length - lot.length) + '/' + hong.length + ' bị từ chối'];
+    });
+    tc('Bất biến', '2.000 ván ngẫu nhiên: mọi trạng thái hợp lệ, số dư không âm, ván nào cũng kết thúc', () => {
+      let maxLuot = 0, loi = '';
+      let s = L.taoVanMoi(0, 0, 'sap');
+      for (let van = 0; van < 2000 && !loi; van++) {
+        let buoc = 0;
+        while (s.trangThai !== 'ket-thuc') {
+          if (++buoc > 500) { loi = 'ván không kết thúc'; break; }
+          if (s.trangThai === 'cho-vay') s = L.vay(s);
+          else {
+            if (Math.random() < 0.3) s = Object.assign({}, s, { luaChon: Math.random() < 0.5 ? 'sap' : 'ngua' });
+            s = L.tungXu(s).state;
+          }
+          const k = L.kiemTra(s);
+          if (k || s.soDu < 0) { loi = k || 'số dư âm'; break; }
+        }
+        maxLuot = Math.max(maxLuot, s.thongKe.soLuot);
+        if (!loi && s.noCu !== s.soVanThua * L.NO_MOI_VAN) loi = 'nợ cũ sai';
+        if (!loi) s = L.choiLai(s);
+      }
+      return [!loi, loi || ('ván dài nhất ' + maxLuot + ' lượt; nợ sau 2.000 ván: ' + tien(s.noCu))];
+    });
+
+    function chay() {
+      const tbody = document.getElementById('ket-qua');
+      tbody.textContent = '';
+      let dat = 0;
+      for (const t of tests) {
+        let ok, chiTiet;
+        try { [ok, chiTiet] = t.fn(); } catch (e) { ok = false; chiTiet = 'Lỗi: ' + e.message; }
+        if (ok) dat++;
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td class="id"></td><td></td><td></td><td class="detail"></td>';
+        tr.children[0].textContent = t.id;
+        tr.children[1].textContent = t.ten;
+        tr.children[2].textContent = ok ? 'ĐẠT' : 'CHƯA ĐẠT';
+        tr.children[2].className = ok ? 'ok' : 'fail';
+        tr.children[3].textContent = chiTiet;
+        tbody.appendChild(tr);
+      }
+      const tong = document.getElementById('tong');
+      tong.textContent = dat + ' / ' + tests.length + ' ca đạt';
+      tong.className = 'summary ' + (dat === tests.length ? 'ok' : 'fail');
+      window.KET_QUA_TEST = { dat, tong: tests.length };
+    }
+    document.getElementById('chay-lai').addEventListener('click', chay);
+    chay();
+  })();
+  </script>
+</body>
+</html>

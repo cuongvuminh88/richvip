@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>RichVip — Sấp hay Ngửa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="../design/tokens.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-root" class="app">
+    <header class="topbar">
+      <span class="logo">RichVip</span>
+      <button id="btn-am-thanh" class="icon-btn" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+        <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+        <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16.5 9.5l5 5m0-5l-5 5"/></svg>
+      </button>
+    </header>
+
+    <!-- S-01 · Màn hình chơi -->
+    <main id="man-choi" class="screen play">
+      <section class="col-main" aria-label="Bàn chơi">
+        <div class="card card-gold balance">
+          <span class="label">Số dư</span>
+          <output id="so-du" class="money balance-value" aria-live="off">1.000.000 đ</output>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini"><span class="label">Đã vay</span><span id="da-vay" class="mini-value">0 / 3</span></div>
+          <div class="mini"><span class="label">Nợ ván này</span><span id="no-van-nay" class="mini-value money">0 đ</span></div>
+          <div class="mini" id="o-no-cu" hidden><span class="label">Nợ cũ</span><span id="no-cu" class="mini-value money debt">0 đ</span></div>
+        </div>
+
+        <div class="coin-stage">
+          <div class="coin" id="coin" aria-hidden="true">
+            <div class="coin-inner" id="coin-inner">
+              <div class="coin-face coin-front" id="coin-front">?</div>
+              <div class="coin-face coin-back" id="coin-back">?</div>
+            </div>
+          </div>
+          <p id="thong-bao" class="result-msg" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="choice" role="group" aria-label="Chọn mặt đồng xu">
+          <button type="button" id="btn-sap" class="choice-btn" aria-pressed="false">Sấp</button>
+          <button type="button" id="btn-ngua" class="choice-btn" aria-pressed="false">Ngửa</button>
+        </div>
+
+        <button type="button" id="btn-tung" class="btn btn-primary btn-lg btn-block" disabled>Tung xu</button>
+      </section>
+
+      <section class="card history col-side" aria-labelledby="ls-tieu-de">
+        <div class="history-head">
+          <h2 id="ls-tieu-de">Lịch sử</h2>
+          <p id="thong-ke" class="stats-line">Lượt 0 · Thắng 0 · Thua 0</p>
+        </div>
+        <ol id="lich-su" class="history-list"></ol>
+        <p id="ls-trong" class="history-empty">Chưa có lượt nào. Chọn mặt rồi bấm Tung xu.</p>
+      </section>
+    </main>
+
+    <!-- S-03 · Màn hình nợ -->
+    <section id="man-no" class="screen over" hidden aria-labelledby="no-tieu-de">
+      <div class="card over-card">
+        <p class="eyebrow">Hết ván</p>
+        <h1 id="no-tieu-de" class="over-title" tabindex="-1">Game Over</h1>
+        <p id="cau-no" class="debt-sentence"></p>
+        <div class="over-stats">
+          <div class="mini"><span class="label">Lượt</span><span id="no-luot" class="mini-value">0</span></div>
+          <div class="mini"><span class="label">Thắng</span><span id="no-thang" class="mini-value win">0</span></div>
+          <div class="mini"><span class="label">Thua</span><span id="no-thua" class="mini-value lose">0</span></div>
+        </div>
+        <p class="over-count">Số ván đã thua: <strong id="no-so-van">0</strong></p>
+        <button type="button" id="btn-choi-lai" class="btn btn-outline btn-lg btn-block">Chơi lại</button>
+        <p class="disclaimer">Đây là trò chơi giải trí, tiền trong game là tiền ảo.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- S-02 · Hộp thoại vay -->
+  <div id="hop-vay" class="modal" hidden>
+    <div class="modal-box card" role="dialog" aria-modal="true" aria-labelledby="vay-tieu-de" aria-describedby="vay-cau vay-con">
+      <h2 id="vay-tieu-de" class="modal-title">Hết tiền rồi!</h2>
+      <p id="vay-cau" class="modal-text">Vay thêm 3.000.000 đ để chơi tiếp?</p>
+      <p id="vay-con" class="modal-sub">Còn được vay 3 / 3 lần trong ván này.</p>
+      <button type="button" id="btn-vay" class="btn btn-accent btn-lg btn-block">Vay 3.000.000 đ</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
