@@ -1,2 +1,18 @@
+# macOS
 ._*
 .DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Log
+*.log
+
+# Biến môi trường (không đưa bí mật lên GitHub)
+.env
+.env.*
+
+# Editor
+.vscode/
+.idea/

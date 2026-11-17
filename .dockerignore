@@ -1,0 +1,29 @@
+# Chỉ cần server/, app/, design/ trong image.
+.git
+.gitignore
+.dockerignore
+.claude
+Dockerfile
+compose.yaml
+docker-compose*.yml
+README.md
+YEU-CAU.md
+docs/
+
+# Trang kiểm thử logic — không cần khi chạy thật
+app/test.html
+
+# Rác hệ điều hành & editor
+**/._*
+**/.DS_Store
+**/Thumbs.db
+.vscode/
+.idea/
+
+# Node
+**/node_modules
+**/npm-debug.log*
+
+# Biến môi trường
+.env
+.env.*

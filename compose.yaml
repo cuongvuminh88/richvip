@@ -1,0 +1,14 @@
+name: richvip
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: richvip-app:latest
+    ports:
+      # Cổng trên máy mặc định 3001 (3000 đang dùng cho dự án khác). Đổi bằng: HOST_PORT=3000 docker compose up -d
+      - "${HOST_PORT:-3001}:3000"
+    environment:
+      PORT: "3000"
+    restart: unless-stopped
