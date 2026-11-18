@@ -237,7 +237,7 @@ ketQua  = thang ? luaChon : (mặt còn lại)</code></pre>
       <li>Các hàm <code>rv_*</code> là <code>SECURITY DEFINER</code>, đặt <code>search_path</code> rỗng, chỉ cấp quyền <code>EXECUTE</code> cho vai trò <code>authenticated</code> (thu hồi từ <code>public</code> và <code>anon</code>).</li>
       <li>Trình duyệt chỉ có <em>Project URL</em> và <em>anon key</em> của Supabase, đặt trong <code>app/config.js</code>. Hai giá trị này được phép công khai; an toàn nhờ RLS và quyền hàm.</li>
       <li><em>Client secret</em> của Google OAuth chỉ nhập trong trang quản trị Supabase; <em>service role key</em> không dùng ở đâu trong repo.</li>
-      <li>Danh sách địa chỉ được phép quay về sau đăng nhập (Redirect URLs) chỉ gồm địa chỉ GitHub Pages của game và <code>http://localhost:3001/</code>.</li>
+      <li>Danh sách địa chỉ được phép quay về sau đăng nhập (Redirect URLs) chỉ gồm <code>https://richvip.cuonguk.com/**</code> và <code>http://localhost:3001/**</code>.</li>
     </ul>
 
     <h2 id="loi-du-lieu"><span class="num">10.</span>Xử lý lỗi</h2>

@@ -2,7 +2,7 @@
 
 Mini game đoán **Sấp / Ngửa** chạy trên trình duyệt, đăng nhập bằng tài khoản Google. Tiền trong game là tiền ảo, chỉ để giải trí.
 
-- Giao diện: HTML/CSS/JS tĩnh, đặt trên **GitHub Pages**.
+- Giao diện: HTML/CSS/JS tĩnh, đặt trên **GitHub Pages** với tên miền riêng — chơi tại **https://richvip.cuonguk.com/**.
 - Đăng nhập và dữ liệu: **Supabase** (Auth + Postgres). Luật chơi chạy trong hàm SQL trên máy chủ nên người chơi không sửa được số dư hay nợ.
 
 | Thư mục | Nội dung |
@@ -75,7 +75,7 @@ Làm một lần. Bạn cần tự đăng nhập các trang quản trị bên d�
    - **Branding:** tên ứng dụng `RichVip`, email hỗ trợ là email của bạn.
    - **Audience:** chọn **External**. Khi còn ở chế độ *Testing* chỉ những email trong danh sách *Test users* đăng nhập được; muốn ai cũng đăng nhập được thì bấm **Publish app** (game chỉ xin tên và email nên không cần Google duyệt).
 3. **Clients → Create client** → loại **Web application**:
-   - **Authorized JavaScript origins:** `https://cuongvuminh88.github.io` và `http://localhost:3001`
+   - **Authorized JavaScript origins:** `https://richvip.cuonguk.com` và `http://localhost:3001`
    - **Authorized redirect URIs:** Callback URL đã chép ở bước 1.4
 4. Chép **Client ID** và **Client secret**.
 
@@ -83,8 +83,8 @@ Làm một lần. Bạn cần tự đăng nhập các trang quản trị bên d�
 
 1. **Authentication → Sign In / Providers → Google** → bật **Enable**, dán Client ID và Client secret → **Save**.
 2. **Authentication → URL Configuration:**
-   - **Site URL:** `https://cuongvuminh88.github.io/richvip/app/`
-   - **Redirect URLs** (thêm cả hai): `https://cuongvuminh88.github.io/richvip/**` và `http://localhost:3001/**`
+   - **Site URL:** `https://richvip.cuonguk.com/app/`
+   - **Redirect URLs** (thêm cả hai): `https://richvip.cuonguk.com/**` và `http://localhost:3001/**`
 
 ### Bước 4 — Điền cấu hình vào game
 
@@ -113,6 +113,15 @@ Kết quả cuối phải là `TẤT CẢ ĐẠT`.
 
 1. Repo phải **public** (GitHub Pages cho repo private cần gói trả phí).
 2. GitHub → repo `richvip` → **Settings → Pages** → *Source*: **Deploy from a branch**, nhánh `main`, thư mục `/ (root)` → **Save**.
-3. Sau 1–2 phút, game ở **https://cuongvuminh88.github.io/richvip/** (tự chuyển sang `app/`). Tài liệu ở `/richvip/docs/`.
+3. Sau 1–2 phút, game ở **https://richvip.cuonguk.com/** (tự chuyển sang `app/`). Tài liệu ở **https://richvip.cuonguk.com/docs/**.
+
+### Tên miền riêng (đã cài)
+
+- DNS của `cuonguk.com` do **Wix** quản lý. Bản ghi **CNAME** `richvip` → `cuongvuminh88.github.io`.
+- Bản ghi **TXT** `_github-pages-challenge-cuongvuminh88` để xác minh tên miền với GitHub (GitHub → Settings tài khoản → Pages). Không xoá bản ghi này.
+- File `CNAME` ở gốc repo chứa `richvip.cuonguk.com` — GitHub Pages cần file này, **không xoá**.
+- Settings → Pages của repo: *Custom domain* `richvip.cuonguk.com`, bật **Enforce HTTPS**.
+- Địa chỉ cũ `cuongvuminh88.github.io/richvip/` tự chuyển sang tên miền mới.
+- Đổi tên miền thì phải sửa cả **Site URL / Redirect URLs** trong Supabase và **Authorized JavaScript origins** trên Google.
 
 Mỗi lần push lên `main`, GitHub Pages tự cập nhật.

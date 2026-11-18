@@ -115,7 +115,7 @@
     <ul>
       <li>HTML, CSS, JavaScript thuần — không framework, không cần build.</li>
       <li>Giao diện dùng <code>design/tokens.css</code>; font Playfair Display và Be Vietnam Pro.</li>
-      <li><strong>Hosting giao diện:</strong> GitHub Pages (nhánh <code>main</code>, thư mục gốc); game ở <code>/richvip/app/</code>. Vẫn chạy được bằng Docker như trước.</li>
+      <li><strong>Hosting giao diện:</strong> GitHub Pages (nhánh <code>main</code>, thư mục gốc); tên miền riêng <code>richvip.cuonguk.com</code> (DNS ở Wix, bản ghi CNAME), game ở <code>https://richvip.cuonguk.com/app/</code>. Vẫn chạy được bằng Docker như trước.</li>
       <li><strong>Đăng nhập:</strong> Supabase Auth, nhà cung cấp Google (OAuth). Thư viện <code>@supabase/supabase-js</code> v2 nạp từ CDN, ghi rõ phiên bản.</li>
       <li><strong>Dữ liệu &amp; luật chơi:</strong> Postgres của Supabase; một bảng tiến độ, bật Row Level Security; các hàm SQL <code>rv_*</code> thực hiện tung xu, vay, chơi lại (xem <a href="04-quy-tac-du-lieu.html#may-chu">trang 04</a>).</li>
       <li><strong>Bí mật:</strong> code trình duyệt chỉ chứa URL dự án và <em>anon key</em> (được phép công khai). Client secret của Google và service role key chỉ nằm trong trang quản trị Supabase / Google, không đưa vào repo.</li>
