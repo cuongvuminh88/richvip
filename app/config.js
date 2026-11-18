@@ -8,6 +8,6 @@
  * Để trống supabaseUrl → game chạy ở CHẾ ĐỘ CỤC BỘ (không đăng nhập, lưu trên trình duyệt, chỉ để phát triển).
  */
 window.RICHVIP_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://gkjpoowzkhpyzcvbmjhc.supabase.co',
+  supabaseAnonKey: 'sb_publishable_15v_Ad6U5xX-mbnopJF-NA_SX2lpmSZ',
 };
