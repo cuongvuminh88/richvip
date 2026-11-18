@@ -86,6 +86,10 @@
           <tr><td class="id">Q8</td><td>Câu báo nợ khi có tài khoản thật</td><td>Giữ câu gốc, thêm ngay sau: "(Nợ ảo trong game, không cần chuyển tiền thật.)"</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
           <tr><td class="id">Q9</td><td>Đưa giao diện lên mạng</td><td>GitHub Pages; chuyển repo sang public.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
           <tr><td class="id">Q10</td><td>Chống gian lận</td><td>Luật chơi chạy trong hàm SQL trên Supabase; trình duyệt chỉ gửi lựa chọn và lệnh.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q11</td><td>Trang admin: quyền</td><td>Chỉ xem, không sửa dữ liệu người chơi.</td><td><span class="badge badge-gold">Bổ sung</span></td></tr>
+          <tr><td class="id">Q12</td><td>Trang admin: thống kê</td><td>Có thống kê tổng ở đầu trang.</td><td><span class="badge badge-gold">Bổ sung</span></td></tr>
+          <tr><td class="id">Q13</td><td>Trang admin: email</td><td>Hiện email đầy đủ (chỉ admin thấy).</td><td><span class="badge badge-gold">Bổ sung</span></td></tr>
+          <tr><td class="id">Q14</td><td>Ai là admin</td><td>Chỉ chủ game; thêm bằng SQL trong Supabase, trang admin không quản lý admin.</td><td><span class="badge badge-gold">Bổ sung</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -99,6 +103,7 @@
       <li>Lịch sử 10 lượt gần nhất, thống kê thắng/thua.</li>
       <li>Lưu tiến độ và nợ cộng dồn trên Supabase theo tài khoản, dùng được trên nhiều thiết bị.</li>
       <li>Luật chơi tính trên máy chủ để chống gian lận.</li>
+      <li>Trang admin chỉ xem: thống kê tổng và danh sách người chơi.</li>
       <li>Âm thanh và nút tắt âm thanh.</li>
       <li>Giao diện responsive theo <code>design/tokens.css</code>.</li>
     </ul>
@@ -106,6 +111,7 @@
     <ul>
       <li>Đăng nhập bằng email/mật khẩu hay mạng xã hội khác; chơi khi chưa đăng nhập.</li>
       <li>Bảng xếp hạng; xoá tài khoản từ trong game.</li>
+      <li>Admin sửa / đặt lại tiến độ, xoá nợ, quản lý danh sách admin trong trang.</li>
       <li>Nút dừng / chốt kết quả giữa ván.</li>
       <li>Chọn mức cược khác 500.000 đ.</li>
       <li>Trả nợ bằng tiền thắng; xoá nợ từ trong game.</li>

@@ -42,6 +42,7 @@
         <li><a href="#tc-luu">Ca test: lưu tiến độ</a></li>
         <li><a href="#tc-ui">Ca test: giao diện &amp; âm thanh</a></li>
         <li><a href="#tc-tk">Ca test: đăng nhập &amp; bảo mật</a></li>
+        <li><a href="#tc-admin">Ca test: trang admin</a></li>
         <li><a href="#nghiem-thu">Tiêu chí nghiệm thu</a></li>
       </ol>
     </nav>
@@ -170,7 +171,23 @@
       </table>
     </div>
 
-    <h2 id="nghiem-thu"><span class="num">9.</span>Tiêu chí nghiệm thu</h2>
+    <h2 id="tc-admin"><span class="num">9.</span>Ca test: trang admin</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã</th><th>Chức năng</th><th>Các bước</th><th>Kết quả mong đợi</th><th>Mức</th></tr></thead>
+        <tbody>
+          <tr><td class="id">TC-44</td><td>F-13</td><td>Mở <code>admin.html</code> khi chưa đăng nhập</td><td>Chỉ thấy nút đăng nhập; đăng nhập xong quay về <code>admin.html</code></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-45</td><td>F-13</td><td>Đăng nhập bằng tài khoản không phải admin</td><td>"Tài khoản này không có quyền admin."; không có số liệu</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-46</td><td>F-13, bảo mật</td><td>Script SQL: người chơi thường / <code>anon</code> gọi <code>rv_admin_tong_quan</code>, <code>rv_admin_danh_sach</code>; đọc <code>rv_quan_tri</code></td><td>Bị từ chối (<code>42501</code>); <code>rv_admin_la_quan_tri()</code> trả <code>false</code></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-47</td><td>F-13</td><td>Script SQL: admin gọi hai hàm</td><td>Danh sách có đủ người chơi kèm email; thống kê khớp tổng tính trực tiếp từ bảng</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-48</td><td>F-13</td><td>Đăng nhập admin, mở <code>admin.html</code></td><td>Thấy thống kê và bảng; tìm, sắp xếp, tải lại hoạt động</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">TC-49</td><td>F-13</td><td>Xem trang admin ở 360px</td><td>Trang không cuộn ngang; bảng cuộn ngang trong khung riêng</td><td><span class="badge badge-gold">Nên có</span></td></tr>
+          <tr><td class="id">TC-50</td><td>F-13</td><td>Tìm trong trang admin nút / lệnh sửa dữ liệu</td><td>Không có; không hàm admin nào ghi dữ liệu</td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="nghiem-thu"><span class="num">10.</span>Tiêu chí nghiệm thu</h2>
     <ul>
       <li>100% ca test <span class="badge badge-red">Bắt buộc</span> đạt trên Chrome máy tính và Safari iOS.</li>
       <li>Ít nhất 80% ca test <span class="badge badge-gold">Nên có</span> đạt; ca chưa đạt được ghi lại kèm lý do.</li>

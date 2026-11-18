@@ -189,6 +189,41 @@ h1, h2 { margin: 0; }
 .over-count strong { color: var(--color-text); }
 .disclaimer { margin: var(--space-5) 0 0; font-size: var(--text-xs); color: var(--color-text-subtle); }
 
+/* ---------- Trang admin (S-04) ---------- */
+.app-wide { max-width: 1200px; }
+.logo-tag { font-family: var(--font-body); font-size: var(--text-sm); font-weight: var(--weight-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; -webkit-text-fill-color: var(--color-text-muted); vertical-align: middle; }
+.admin { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+.admin-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.admin-title { font-family: var(--font-display); font-weight: 900; font-size: var(--text-3xl); }
+.admin-note { margin: 0; font-size: var(--text-sm); color: var(--color-text-subtle); }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-3); }
+.admin-stats .mini-value { font-size: var(--text-xl); }
+.admin-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.field-grow { flex: 1 1 220px; }
+.input {
+  height: var(--control-h-md); padding: 0 var(--space-3); font: inherit; font-size: var(--text-sm);
+  color: var(--color-text); background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); min-width: 0;
+}
+.input:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-border-gold); }
+.admin-count { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+.admin-table-wrap:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.admin-table th, .admin-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); text-align: left; white-space: nowrap; }
+.admin-table th { position: sticky; top: 0; background: var(--color-surface-raised); color: var(--gold-300); font-weight: var(--weight-semibold); }
+.admin-table tbody tr:last-child td { border-bottom: none; }
+.admin-table tbody tr:hover td { background: color-mix(in srgb, var(--gold-500) 5%, transparent); }
+.admin-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.admin-table .debt { color: var(--red-300); font-weight: var(--weight-bold); }
+.admin-table .cell-email { color: var(--color-text); font-weight: var(--weight-semibold); }
+.admin-table .cell-time { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+.admin-table .cell-empty { text-align: center; color: var(--color-text-subtle); padding-block: var(--space-8); }
+.admin-table td[data-trang-thai="cho-vay"] { color: var(--gold-300); }
+.admin-table td[data-trang-thai="ket-thuc"] { color: var(--red-300); }
+a.btn { text-decoration: none; }
+
 /* ---------- Khung công cụ test (?test=1) ---------- */
 .test-panel {
   position: fixed; left: var(--space-3); bottom: var(--space-3); z-index: 60; width: min(calc(100% - 2 * var(--space-3)), 300px);
@@ -206,6 +241,8 @@ h1, h2 { margin: 0; }
   .logo { font-size: var(--text-2xl); }
   .user-name { display: none; }
   .login-title { font-size: var(--text-4xl); }
+  .admin-title { font-size: var(--text-2xl); }
+  .admin-toolbar .btn { flex: 1 1 100%; }
   .balance-value { font-size: var(--text-3xl); }
   .mini-grid { grid-template-columns: 1fr; gap: var(--space-2); }
   .mini-grid .mini { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-4); }

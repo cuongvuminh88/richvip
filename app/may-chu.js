@@ -133,5 +133,10 @@
     tungXu: (chon) => goi('rv_tung_xu', { p_chon: chon }),
     vay: () => goi('rv_vay'),
     choiLai: () => goi('rv_choi_lai'),
+
+    // Trang admin — chỉ xem (docs/04 §12). Máy chủ tự kiểm tra quyền admin.
+    adminLaQuanTri: () => goi('rv_admin_la_quan_tri'),
+    adminTongQuan: () => goi('rv_admin_tong_quan'),
+    adminDanhSach: () => goi('rv_admin_danh_sach'),
   };
 })();

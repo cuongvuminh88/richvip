@@ -2,7 +2,7 @@
 
 > Tài liệu mô tả yêu cầu cho mini game chạy trên trình duyệt. **Chưa bao gồm code.**
 > Toàn bộ tiền trong game là **tiền ảo**, chỉ dùng để giải trí.
-> Cập nhật 17/11/2026 theo buổi phỏng vấn làm rõ ý tưởng; cập nhật 18/11/2026: thêm đăng nhập Google và lưu tiến độ trên máy chủ (Supabase). Tài liệu chi tiết: `docs/index.html`.
+> Cập nhật 17/11/2026 theo buổi phỏng vấn làm rõ ý tưởng; cập nhật 18/11/2026: thêm đăng nhập Google và lưu tiến độ trên máy chủ (Supabase), thêm trang admin chỉ xem. Tài liệu chi tiết: `docs/index.html`.
 
 ---
 
@@ -127,6 +127,16 @@
 - Phong cách "VIP": tông màu vàng / đen sang trọng, dùng đúng `design/tokens.css`.
 - Ngôn ngữ giao diện: tiếng Việt.
 
+### 4.5. Trang Admin (chỉ xem)
+
+- Địa chỉ riêng `app/admin.html`, không có liên kết từ game; trang đặt `noindex`.
+- Phải đăng nhập Google. Tài khoản không phải admin chỉ thấy "Tài khoản này không có quyền admin." và nút Đăng xuất.
+- Admin là tài khoản có trong bảng `rv_quan_tri`. Hiện chỉ chủ game; thêm bằng một câu SQL trong Supabase, trang admin **không** có nút thêm/xoá admin.
+- **Thống kê tổng:** số người chơi, số người chơi trong 7 ngày gần nhất, tổng nợ ảo (nợ cũ + nợ ván đang chơi), tổng số ván thua, tổng số lượt tung.
+- **Danh sách người chơi:** email đầy đủ, tên, trạng thái (đang chơi / chờ vay / màn hình nợ), số dư, số lần vay, tổng nợ, số ván thua, số lượt, lần chơi gần nhất, lần đăng nhập gần nhất.
+- Ô tìm theo email hoặc tên; sắp xếp theo lần chơi gần nhất, tổng nợ, số lượt; nút **Tải lại**.
+- **Chỉ xem:** không có nút nào thay đổi dữ liệu người chơi.
+
 ---
 
 ## 5. Tiêu chí hoàn thành
@@ -167,6 +177,8 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 ### Kỹ thuật
 - [ ] Không có lỗi trong Console của trình duyệt.
 - [ ] Các hằng số (số dư đầu, mức cược, mức vay, số lần vay tối đa, số tài khoản) được khai báo tập trung, dễ thay đổi.
+- [ ] Trang admin chỉ hiện dữ liệu cho tài khoản có trong `rv_quan_tri`; người chơi thường hoặc chưa đăng nhập gọi hàm admin đều bị máy chủ từ chối.
+- [ ] Thống kê tổng trên trang admin khớp với dữ liệu trong bảng.
 - [ ] Không có khoá bí mật nào (service role key, client secret của Google) nằm trong repo; trong code trình duyệt chỉ có URL và anon key của Supabase.
 
 ---
@@ -179,3 +191,4 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 - Cho phép chọn mức cược khác 500.000 đ.
 - Trả nợ bằng tiền thắng trong game; xoá nợ từ trong game.
 - Xoá tài khoản từ trong game.
+- Admin sửa / đặt lại tiến độ, xoá nợ, quản lý danh sách admin từ trang admin.

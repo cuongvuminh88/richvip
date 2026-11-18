@@ -38,6 +38,7 @@
         <tbody>
           <tr><td class="id">F-11</td><td><a href="#f11">Đăng nhập bằng Google</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-12</td><td><a href="#f12">Đăng xuất &amp; phiên đăng nhập</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-13</td><td><a href="#f13">Trang admin (chỉ xem)</a></td><td><span class="badge badge-gold">Nên có</span></td></tr>
           <tr><td class="id">F-01</td><td><a href="#f01">Khởi động &amp; khôi phục tiến độ</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-02</td><td><a href="#f02">Chọn mặt Sấp / Ngửa</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-03</td><td><a href="#f03">Tung xu</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
@@ -70,6 +71,17 @@
       <li>Phiên đăng nhập được nhớ: tải lại trang hay mở lại trình duyệt không phải đăng nhập lại (Supabase tự làm mới phiên).</li>
       <li>Phiên hết hạn hoặc bị thu hồi giữa chừng → lệnh tiếp theo báo lỗi, game đưa về S-00 với thông báo "Phiên đăng nhập đã hết, vui lòng đăng nhập lại."</li>
     </ul>
+
+    <h2 id="f13"><span class="num">F-13</span>Trang admin (chỉ xem)</h2>
+    <ul>
+      <li>Trang riêng <code>app/admin.html</code> (<a href="03-man-hinh.html#s4">S-04</a>), không có liên kết từ game.</li>
+      <li>Chưa đăng nhập → nút <strong>Đăng nhập bằng Google</strong>, quay về đúng trang admin sau khi đăng nhập.</li>
+      <li>Đã đăng nhập nhưng không phải admin → chỉ thấy "Tài khoản này không có quyền admin." và nút Đăng xuất; không có dữ liệu nào được gửi về trình duyệt.</li>
+      <li>Admin → thống kê tổng và danh sách mọi người chơi (email đầy đủ), tìm kiếm, sắp xếp, tải lại.</li>
+      <li>Danh sách admin nằm trong bảng <code>rv_quan_tri</code> trên máy chủ, chỉ thêm / xoá bằng SQL trong Supabase.</li>
+      <li>Không có thao tác sửa dữ liệu nào.</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> người chơi thường không lấy được danh sách người chơi bằng bất kỳ cách nào, kể cả gọi thẳng hàm từ Console.</p>
 
     <h2 id="f01"><span class="num">F-01</span>Khởi động &amp; khôi phục tiến độ</h2>
     <p>Sau khi đăng nhập, game gọi máy chủ để lấy tiến độ của tài khoản.</p>

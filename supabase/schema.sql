@@ -324,19 +324,120 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
--- 6. Quyền gọi hàm: chỉ người đã đăng nhập
+-- 6. Trang admin — CHỈ XEM (docs/04 §12)
+-- ---------------------------------------------------------------------------
+create table if not exists public.rv_quan_tri (
+  user_id  uuid        primary key references auth.users (id) on delete cascade,
+  them_luc timestamptz not null default now()
+);
+comment on table public.rv_quan_tri is 'RichVip: tài khoản được xem trang admin. Chỉ thêm/xoá bằng SQL Editor.';
+
+-- RLS bật, không có chính sách nào, thu hồi mọi quyền: trình duyệt không đọc, không ghi được.
+alter table public.rv_quan_tri enable row level security;
+revoke all on table public.rv_quan_tri from public, anon, authenticated;
+
+-- Người đang đăng nhập có phải admin không (không lộ dữ liệu, dùng để trang hiện thông báo).
+create or replace function public.rv_admin_la_quan_tri()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (select 1 from public.rv_quan_tri where user_id = auth.uid());
+$$;
+
+create or replace function rv_noi_bo.chi_quan_tri()
+returns void
+language plpgsql
+stable
+set search_path = ''
+as $$
+begin
+  if not exists (select 1 from public.rv_quan_tri where user_id = auth.uid()) then
+    raise exception 'Không có quyền admin' using errcode = '42501';
+  end if;
+end;
+$$;
+revoke all on function rv_noi_bo.chi_quan_tri() from public;
+
+-- Thống kê tổng.
+create or replace function public.rv_admin_tong_quan()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  perform rv_noi_bo.chi_quan_tri();
+  return (
+    select jsonb_build_object(
+      'soNguoiChoi',      count(*),
+      'soNguoiChoi7Ngay', count(*) filter (where t.cap_nhat_luc >= now() - interval '7 days'),
+      'tongNo',           coalesce(sum(t.no_cu + t.no_van_nay), 0),
+      'tongVanThua',      coalesce(sum(t.so_van_thua), 0),
+      'tongLuot',         coalesce(sum(t.so_luot), 0)
+    )
+    from public.rv_tien_do t
+  );
+end;
+$$;
+
+-- Danh sách người chơi (tối đa 1.000 dòng, mới cập nhật trước).
+create or replace function public.rv_admin_danh_sach()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  perform rv_noi_bo.chi_quan_tri();
+  return (
+    select coalesce(jsonb_agg(d.dong order by d.cap_nhat_luc desc), '[]'::jsonb)
+    from (
+      select t.cap_nhat_luc, jsonb_build_object(
+        'email',        u.email,
+        'ten',          coalesce(u.raw_user_meta_data ->> 'full_name', u.raw_user_meta_data ->> 'name'),
+        'trangThai',    t.trang_thai,
+        'soDu',         t.so_du,
+        'soLanVay',     t.so_lan_vay,
+        'tongNo',       t.no_cu + t.no_van_nay,
+        'soVanThua',    t.so_van_thua,
+        'soLuot',       t.so_luot,
+        'taoLuc',       t.tao_luc,
+        'capNhatLuc',   t.cap_nhat_luc,
+        'dangNhapCuoi', u.last_sign_in_at
+      ) as dong
+      from public.rv_tien_do t
+      join auth.users u on u.id = t.user_id
+      order by t.cap_nhat_luc desc
+      limit 1000
+    ) d
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 7. Quyền gọi hàm: chỉ người đã đăng nhập
 -- ---------------------------------------------------------------------------
 revoke all on function public.rv_lay_tien_do()   from public;
 revoke all on function public.rv_tung_xu(text)   from public;
 revoke all on function public.rv_vay()           from public;
 revoke all on function public.rv_choi_lai()      from public;
 revoke all on function public.rv_cau_hinh()      from public;
+revoke all on function public.rv_admin_la_quan_tri() from public;
+revoke all on function public.rv_admin_tong_quan()   from public;
+revoke all on function public.rv_admin_danh_sach()   from public;
 do $$
 begin
   if exists (select 1 from pg_roles where rolname = 'anon') then
     execute 'revoke all on function public.rv_lay_tien_do(), public.rv_tung_xu(text), public.rv_vay(), public.rv_choi_lai() from anon';
     execute 'grant execute on function public.rv_lay_tien_do(), public.rv_tung_xu(text), public.rv_vay(), public.rv_choi_lai() to authenticated';
     execute 'grant execute on function public.rv_cau_hinh() to anon, authenticated';
+    execute 'revoke all on function public.rv_admin_la_quan_tri(), public.rv_admin_tong_quan(), public.rv_admin_danh_sach() from anon';
+    execute 'grant execute on function public.rv_admin_la_quan_tri(), public.rv_admin_tong_quan(), public.rv_admin_danh_sach() to authenticated';
   end if;
 end $$;
 

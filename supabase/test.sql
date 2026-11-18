@@ -34,6 +34,7 @@ end $$;
 
 create function rv_test.a() returns uuid language sql immutable as $$ select '00000000-0000-0000-0000-00000000000a'::uuid $$;
 create function rv_test.b() returns uuid language sql immutable as $$ select '00000000-0000-0000-0000-00000000000b'::uuid $$;
+create function rv_test.c() returns uuid language sql immutable as $$ select '00000000-0000-0000-0000-00000000000c'::uuid $$;
 
 -- Đăng nhập giả: đặt user id cho auth.uid()
 create function rv_test.la(u uuid) returns void language sql as $$
@@ -52,7 +53,10 @@ $$;
 
 grant execute on all functions in schema rv_test to anon, authenticated;
 
-insert into auth.users (id) values (rv_test.a()), (rv_test.b());
+insert into auth.users (id, email, raw_user_meta_data, last_sign_in_at) values
+  (rv_test.a(), 'a@example.com', '{"full_name": "Người chơi A"}', now()),
+  (rv_test.b(), 'b@example.com', '{"name": "Người chơi B"}', now()),
+  (rv_test.c(), 'admin@example.com', '{"full_name": "Admin C"}', now());
 
 -- ---------------------------------------------------------------------------
 -- Cấu hình & bảo vệ hàm
@@ -246,6 +250,69 @@ select rv_test.kiem(rv_test.loi_khi('select public.rv_lay_tien_do()') = '42501',
 select rv_test.kiem(rv_test.loi_khi('select public.rv_vay()') = '42501' and rv_test.loi_khi('select public.rv_choi_lai()') = '42501', 'TC-39: anon gọi rv_vay / rv_choi_lai bị từ chối');
 select rv_test.kiem(rv_test.loi_khi('select * from public.rv_tien_do') = '42501', 'TC-39: anon đọc bảng bị từ chối');
 commit;
+
+-- ---------------------------------------------------------------------------
+-- TC-46 / TC-47 / TC-50: trang admin (chỉ xem)
+-- ---------------------------------------------------------------------------
+select rv_test.kiem(bool_and(p.prosecdef and 'search_path=""' = any(p.proconfig) and p.provolatile = 's'),
+  'TC-50: các hàm rv_admin_* là SECURITY DEFINER, search_path rỗng, khai báo STABLE (Postgres cấm ghi dữ liệu)')
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname like 'rv\_admin\_%';
+
+begin;
+set local role anon;
+select rv_test.kiem(rv_test.loi_khi('select public.rv_admin_la_quan_tri()') = '42501'
+  and rv_test.loi_khi('select public.rv_admin_tong_quan()') = '42501'
+  and rv_test.loi_khi('select public.rv_admin_danh_sach()') = '42501'
+  and rv_test.loi_khi('select * from public.rv_quan_tri') = '42501', 'TC-46: anon gọi hàm admin / đọc rv_quan_tri bị từ chối');
+commit;
+
+begin;
+set local role authenticated;
+select rv_test.la(rv_test.b());
+select rv_test.kiem(public.rv_admin_la_quan_tri() = false, 'TC-45/46: người chơi thường → rv_admin_la_quan_tri() = false');
+select rv_test.kiem(rv_test.loi_khi('select public.rv_admin_tong_quan()') = '42501', 'TC-46: người chơi thường gọi rv_admin_tong_quan bị từ chối');
+select rv_test.kiem(rv_test.loi_khi('select public.rv_admin_danh_sach()') = '42501', 'TC-46: người chơi thường gọi rv_admin_danh_sach bị từ chối');
+select rv_test.kiem(rv_test.loi_khi('select * from public.rv_quan_tri') = '42501', 'TC-46: người chơi thường đọc rv_quan_tri bị từ chối');
+select rv_test.kiem(rv_test.loi_khi($q$insert into public.rv_quan_tri (user_id) values ('00000000-0000-0000-0000-00000000000b')$q$) = '42501', 'TC-46: người chơi thường tự thêm mình làm admin bị từ chối');
+select rv_test.kiem(rv_test.loi_khi('select rv_noi_bo.chi_quan_tri()') = '42501', 'TC-46: hàm nội bộ kiểm tra admin không gọi được từ trình duyệt');
+commit;
+
+-- Chủ game thêm admin bằng SQL Editor (quyền quản trị), đúng như README hướng dẫn
+insert into public.rv_quan_tri (user_id) select id from auth.users where email = 'admin@example.com' on conflict do nothing;
+
+begin;
+set local role authenticated;
+select rv_test.la(rv_test.c());
+select rv_test.kiem(public.rv_admin_la_quan_tri() = true, 'TC-47: admin → rv_admin_la_quan_tri() = true');
+select rv_test.kiem(jsonb_array_length(public.rv_admin_danh_sach()) = 2
+  and (select bool_and(e ? 'email' and e ? 'tongNo' and e ? 'dangNhapCuoi') from jsonb_array_elements(public.rv_admin_danh_sach()) e)
+  and (select count(*) from jsonb_array_elements(public.rv_admin_danh_sach()) e
+       where (e ->> 'email' = 'a@example.com' and e ->> 'ten' = 'Người chơi A')
+          or (e ->> 'email' = 'b@example.com' and e ->> 'ten' = 'Người chơi B')) = 2,
+  'TC-47: admin thấy đủ 2 người chơi kèm email, tên (full_name hoặc name)');
+select rv_test.kiem(rv_test.loi_khi('select * from public.rv_tien_do') is null
+  and (select count(*) from public.rv_tien_do) = 0, 'Admin không có dòng tiến độ thì đọc thẳng bảng vẫn chỉ thấy dòng của mình (0 dòng)');
+select rv_test.kiem(rv_test.loi_khi('update public.rv_tien_do set so_du = 0') = '42501', 'TC-50: admin cũng không ghi thẳng được vào bảng tiến độ');
+commit;
+
+do $$
+declare tq jsonb; ds jsonb;
+begin
+  perform rv_test.la(rv_test.c());
+  tq := public.rv_admin_tong_quan();
+  ds := public.rv_admin_danh_sach();
+  perform rv_test.kiem(
+        (tq ->> 'soNguoiChoi')::int  = (select count(*) from public.rv_tien_do)
+    and (tq ->> 'soNguoiChoi7Ngay')::int = (select count(*) from public.rv_tien_do where cap_nhat_luc >= now() - interval '7 days')
+    and (tq ->> 'tongNo')::bigint     = (select sum(no_cu + no_van_nay) from public.rv_tien_do)
+    and (tq ->> 'tongVanThua')::int   = (select sum(so_van_thua) from public.rv_tien_do)
+    and (tq ->> 'tongLuot')::int      = (select sum(so_luot) from public.rv_tien_do),
+    format('TC-47: thống kê khớp bảng (%s)', tq));
+  perform rv_test.kiem((select sum((e ->> 'tongNo')::bigint) from jsonb_array_elements(ds) e) = (tq ->> 'tongNo')::bigint,
+    'TC-47: tổng nợ trong danh sách khớp thống kê');
+  perform rv_test.la(rv_test.a());
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- TC-41 (= TC-07, 07b, 07c, 07d trên máy chủ): mô phỏng tỉ lệ thắng, 10.000 lượt mỗi mốc

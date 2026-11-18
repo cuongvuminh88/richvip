@@ -38,6 +38,7 @@
         <li><a href="#s1">Màn hình chơi</a></li>
         <li><a href="#s2">Hộp thoại vay</a></li>
         <li><a href="#s3">Màn hình nợ</a></li>
+        <li><a href="#s4">Trang admin</a></li>
         <li><a href="#luong">Luồng chuyển màn hình</a></li>
         <li><a href="#chung">Quy định chung</a></li>
       </ol>
@@ -137,6 +138,25 @@
       <li>Thanh trên cùng vẫn có tên người chơi và nút Đăng xuất.</li>
       <li>Dòng chú thích tiền ảo luôn hiển thị, không được ẩn.</li>
       <li>Nút <strong>Chơi lại</strong> bắt đầu ván mới, nợ cũ được giữ.</li>
+    </ul>
+
+    <h2 id="s4"><span class="num">S-04</span>Trang admin (<code>app/admin.html</code>)</h2>
+    <div class="wire" aria-label="Phác thảo trang admin">
+      <div class="w-row"><div class="w-box w-gold">RichVip · Admin</div><div class="w-box">Tên admin · Đăng xuất</div></div>
+      <div class="w-row">
+        <div class="w-box">Người chơi<br><b>24</b></div><div class="w-box">7 ngày qua<br><b>9</b></div><div class="w-box">Tổng nợ ảo<br><b>396.000.000 đ</b></div>
+      </div>
+      <div class="w-row"><div class="w-box">Ván thua<br><b>21</b></div><div class="w-box">Lượt tung<br><b>1.380</b></div></div>
+      <div class="w-row"><div class="w-box" style="text-align:left">🔍 Tìm email / tên</div><div class="w-box" style="flex:0 0 160px">Sắp xếp ▾</div><div class="w-box" style="flex:0 0 90px">Tải lại</div></div>
+      <div class="w-box" style="text-align:left">Email · Tên · Trạng thái · Số dư · Vay · Tổng nợ · Ván thua · Lượt · Chơi gần nhất · Đăng nhập gần nhất</div>
+    </div>
+    <ul>
+      <li>Ba trạng thái trang: <em>chưa đăng nhập</em> (thẻ đăng nhập giống S-00), <em>không có quyền</em> (thông báo + Đăng xuất), <em>admin</em> (nội dung đầy đủ).</li>
+      <li>Thẻ thống kê dùng kiểu <code>.mini</code> như màn hình chơi; tổng nợ màu đỏ.</li>
+      <li>Bảng rộng nằm trong khung cuộn ngang riêng; trang không cuộn ngang ở 360px. Cột số căn phải, số tiền theo định dạng <code>1.000.000 đ</code>.</li>
+      <li>Trạng thái ghi bằng chữ: "Đang chơi", "Chờ vay", "Màn hình nợ".</li>
+      <li>Thời gian hiển thị theo giờ máy người xem, dạng <code>18/11/2026 21:05</code>.</li>
+      <li>Không có nút sửa / xoá. Ở chế độ cục bộ, trang báo "Trang admin cần kết nối Supabase".</li>
     </ul>
 
     <h2 id="luong"><span class="num">4.</span>Luồng chuyển màn hình</h2>

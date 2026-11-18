@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>RichVip — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap">
+  <link rel="stylesheet" href="../design/tokens.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- S-04 · Trang admin (chỉ xem). docs/03-man-hinh.html#s4 -->
+  <div class="app app-wide">
+    <header class="topbar">
+      <span class="logo">RichVip <span class="logo-tag">Admin</span></span>
+      <div class="topbar-right">
+        <div id="khu-nguoi-choi" class="user" hidden>
+          <span id="ten-nguoi-choi" class="user-name"></span>
+          <button type="button" id="btn-dang-xuat" class="btn btn-ghost btn-sm">Đăng xuất</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Chưa đăng nhập -->
+    <section id="ad-dang-nhap" class="screen login" aria-labelledby="ad-dn-tieu-de">
+      <div class="card card-gold login-card">
+        <h1 id="ad-dn-tieu-de" class="login-title">Admin</h1>
+        <p class="login-lead">Đăng nhập bằng tài khoản Google được cấp quyền admin.</p>
+        <p id="ad-dn-loi" class="login-error" role="alert" hidden></p>
+        <button type="button" id="btn-dang-nhap" class="btn btn-primary btn-lg btn-block" disabled>Đang tải…</button>
+      </div>
+    </section>
+
+    <!-- Đăng nhập nhưng không phải admin / chế độ cục bộ -->
+    <section id="ad-thong-bao" class="screen login" hidden>
+      <div class="card login-card">
+        <h1 class="login-title">Admin</h1>
+        <p id="ad-thong-bao-chu" class="login-lead" role="status"></p>
+        <a class="btn btn-outline btn-block" href="./">Về trang game</a>
+      </div>
+    </section>
+
+    <!-- Nội dung admin -->
+    <main id="ad-noi-dung" class="screen admin" hidden>
+      <div class="admin-head">
+        <h1 class="admin-title">Người chơi</h1>
+        <p class="admin-note">Chỉ xem — trang này không thay đổi dữ liệu.</p>
+      </div>
+
+      <section class="admin-stats" aria-label="Thống kê tổng">
+        <div class="mini"><span class="label">Người chơi</span><span id="tk-nguoi-choi" class="mini-value">—</span></div>
+        <div class="mini"><span class="label">Chơi trong 7 ngày</span><span id="tk-7-ngay" class="mini-value">—</span></div>
+        <div class="mini"><span class="label">Tổng nợ ảo</span><span id="tk-tong-no" class="mini-value money debt">—</span></div>
+        <div class="mini"><span class="label">Ván thua</span><span id="tk-van-thua" class="mini-value">—</span></div>
+        <div class="mini"><span class="label">Lượt tung</span><span id="tk-luot" class="mini-value">—</span></div>
+      </section>
+
+      <div class="admin-toolbar">
+        <label class="field field-grow">
+          <span class="label">Tìm</span>
+          <input id="ad-tim" class="input" type="search" placeholder="Email hoặc tên" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="label">Sắp xếp</span>
+          <select id="ad-sap-xep" class="input">
+            <option value="cap-nhat">Chơi gần nhất</option>
+            <option value="no">Tổng nợ nhiều nhất</option>
+            <option value="luot">Nhiều lượt nhất</option>
+          </select>
+        </label>
+        <button type="button" id="btn-tai-lai" class="btn btn-outline">Tải lại</button>
+      </div>
+
+      <p id="ad-dem" class="admin-count" role="status" aria-live="polite"></p>
+      <p id="ad-loi" class="login-error" role="alert" hidden></p>
+
+      <div class="admin-table-wrap" tabindex="0" aria-label="Bảng người chơi, cuộn ngang được">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">Email</th>
+              <th scope="col">Tên</th>
+              <th scope="col">Trạng thái</th>
+              <th scope="col" class="num">Số dư</th>
+              <th scope="col" class="num">Vay</th>
+              <th scope="col" class="num">Tổng nợ</th>
+              <th scope="col" class="num">Ván thua</th>
+              <th scope="col" class="num">Lượt</th>
+              <th scope="col">Chơi gần nhất</th>
+              <th scope="col">Đăng nhập gần nhất</th>
+            </tr>
+          </thead>
+          <tbody id="ad-bang"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="may-chu.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

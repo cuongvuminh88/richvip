@@ -45,6 +45,7 @@
         <li><a href="#bao-mat">Bảo mật</a></li>
         <li><a href="#loi-du-lieu">Xử lý lỗi</a></li>
         <li><a href="#cuc-bo">Chế độ cục bộ (phát triển)</a></li>
+        <li><a href="#admin">Dữ liệu trang admin</a></li>
       </ol>
     </nav>
 
@@ -264,6 +265,34 @@ ketQua  = thang ? luaChon : (mặt còn lại)</code></pre>
       <li>Có dải cảnh báo "Chế độ cục bộ — tiến độ chỉ lưu trên trình duyệt này" ở đầu trang.</li>
       <li>Chỉ ở chế độ này mới dùng được khung test <code>?test=1</code> (ép kết quả, nạp trạng thái mẫu).</li>
       <li>Hàm SQL được kiểm thử riêng bằng script <code>supabase/test.sql</code> chạy trên Postgres trong Docker (xem trang 05).</li>
+    </ul>
+
+    <h2 id="admin"><span class="num">12.</span>Dữ liệu trang admin</h2>
+    <h3>Bảng <code>public.rv_quan_tri</code></h3>
+    <ul>
+      <li>Cột <code>user_id</code> (khoá chính, tham chiếu <code>auth.users</code>, xoá theo) và <code>them_luc</code>.</li>
+      <li>Bật RLS, <strong>không</strong> có chính sách nào và thu hồi mọi quyền của <code>anon</code> / <code>authenticated</code> → trình duyệt không đọc, không ghi được.</li>
+      <li>Thêm admin (chạy trong SQL Editor của Supabase):
+<pre><code>insert into public.rv_quan_tri (user_id)
+select id from auth.users where email = 'email-cua-ban@gmail.com'
+on conflict do nothing;</code></pre></li>
+    </ul>
+    <h3>Hàm cho trang admin</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Hàm</th><th>Trả về</th><th>Khi không phải admin</th></tr></thead>
+        <tbody>
+          <tr><td class="id">rv_admin_la_quan_tri()</td><td><code>true</code> / <code>false</code></td><td>Trả <code>false</code> (để trang hiện thông báo)</td></tr>
+          <tr><td class="id">rv_admin_tong_quan()</td><td><code>{ soNguoiChoi, soNguoiChoi7Ngay, tongNo, tongVanThua, tongLuot }</code></td><td>Lỗi <code>42501</code>, không trả dữ liệu</td></tr>
+          <tr><td class="id">rv_admin_danh_sach()</td><td>Mảng JSON, mỗi phần tử: <code>email, ten, trangThai, soDu, soLanVay, tongNo, soVanThua, soLuot, taoLuc, capNhatLuc, dangNhapCuoi</code>; tối đa 1.000 dòng, mới cập nhật trước</td><td>Lỗi <code>42501</code>, không trả dữ liệu</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><code>tongNo</code> = <code>no_cu + no_van_nay</code>; <code>soNguoiChoi7Ngay</code> đếm dòng có <code>cap_nhat_luc</code> trong 7 ngày gần nhất.</li>
+      <li>Ba hàm là <code>SECURITY DEFINER</code>, <code>search_path</code> rỗng, chỉ cấp cho <code>authenticated</code>; kiểm tra admin bằng <code>auth.uid()</code> ở <strong>trong</strong> hàm.</li>
+      <li>Email và tên lấy từ <code>auth.users</code> (bảng Supabase quản lý); trình duyệt không bao giờ đọc thẳng bảng này.</li>
+      <li>Không có hàm admin nào ghi dữ liệu.</li>
     </ul>
 
     <nav class="pager" aria-label="Chuyển trang">

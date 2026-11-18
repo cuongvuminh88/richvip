@@ -109,6 +109,27 @@ bash scripts/test-sql.sh
 
 Kết quả cuối phải là `TẤT CẢ ĐẠT`.
 
+## Trang admin (chỉ xem)
+
+Địa chỉ: **https://richvip.cuonguk.com/app/admin.html** (không có liên kết từ game). Trang có thống kê tổng và danh sách người chơi kèm email; **không** có nút sửa dữ liệu.
+
+Cài đặt một lần trên Supabase (SQL Editor):
+
+1. Chạy lại toàn bộ `supabase/schema.sql` để tạo bảng `rv_quan_tri` và các hàm `rv_admin_*` (không mất dữ liệu người chơi).
+2. Thêm tài khoản của bạn làm admin — thay email bằng email Google bạn dùng để đăng nhập game:
+
+   ```sql
+   insert into public.rv_quan_tri (user_id)
+   select id from auth.users where email = 'email-cua-ban@gmail.com'
+   on conflict do nothing;
+   ```
+
+   Tài khoản phải đăng nhập game ít nhất một lần trước đó. Kiểm tra: `select * from public.rv_quan_tri;` có 1 dòng.
+
+Bỏ quyền admin: `delete from public.rv_quan_tri where user_id = (select id from auth.users where email = '…');`
+
+Quyền admin do máy chủ kiểm tra trong từng hàm, nên người chơi thường không lấy được danh sách dù sửa code trên trình duyệt.
+
 ## Đưa lên GitHub Pages
 
 1. Repo phải **public** (GitHub Pages cho repo private cần gói trả phí).
