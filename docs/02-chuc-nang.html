@@ -36,6 +36,8 @@
       <table>
         <thead><tr><th>Mã</th><th>Chức năng</th><th>Ưu tiên</th></tr></thead>
         <tbody>
+          <tr><td class="id">F-11</td><td><a href="#f11">Đăng nhập bằng Google</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
+          <tr><td class="id">F-12</td><td><a href="#f12">Đăng xuất &amp; phiên đăng nhập</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-01</td><td><a href="#f01">Khởi động &amp; khôi phục tiến độ</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-02</td><td><a href="#f02">Chọn mặt Sấp / Ngửa</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
           <tr><td class="id">F-03</td><td><a href="#f03">Tung xu</a></td><td><span class="badge badge-red">Bắt buộc</span></td></tr>
@@ -50,12 +52,32 @@
       </table>
     </div>
 
-    <h2 id="f01"><span class="num">F-01</span>Khởi động &amp; khôi phục tiến độ</h2>
-    <p>Khi mở trang, game đọc dữ liệu đã lưu trong trình duyệt.</p>
+    <h2 id="f11"><span class="num">F-11</span>Đăng nhập bằng Google</h2>
     <ul>
-      <li>Chưa có dữ liệu → tạo ván mới: số dư 1.000.000 đ, nợ cũ 0, nợ ván này 0, đã vay 0/3.</li>
-      <li>Có dữ liệu hợp lệ → khôi phục đúng trạng thái: đang chơi, đang chờ vay, hoặc đang ở màn hình nợ.</li>
-      <li>Dữ liệu hỏng hoặc sai cấu trúc → bỏ qua và tạo ván mới (xem <a href="04-quy-tac-du-lieu.html#loi-du-lieu">quy tắc dữ liệu</a>).</li>
+      <li>Mở game khi chưa đăng nhập → chỉ thấy <a href="03-man-hinh.html#s0">màn hình đăng nhập</a> (S-00), không thấy số dư hay nút chơi.</li>
+      <li>Bấm <strong>Đăng nhập bằng Google</strong> → chuyển sang trang chọn tài khoản của Google (qua Supabase Auth), xong quay về đúng trang game.</li>
+      <li>Lần đầu đăng nhập, máy chủ tự tạo tiến độ mới cho tài khoản: số dư 1.000.000 đ, nợ 0.</li>
+      <li>Trong lúc chuyển trang / tải tiến độ: nút bị khoá, hiện "Đang đăng nhập…" / "Đang tải…".</li>
+      <li>Người chơi huỷ ở trang Google, hoặc có lỗi → quay về S-00 với thông báo lỗi màu đỏ và có thể thử lại.</li>
+      <li>Game chỉ lấy <strong>tên hiển thị</strong> và <strong>email</strong> từ Google; không lấy danh bạ hay dữ liệu khác. Tên hiển thị trên thanh trên cùng; không hiện ảnh đại diện.</li>
+    </ul>
+    <p><strong>Chấp nhận khi:</strong> không có cách nào vào màn hình chơi mà chưa đăng nhập; hai tài khoản khác nhau có tiến độ và nợ riêng.</p>
+
+    <h2 id="f12"><span class="num">F-12</span>Đăng xuất &amp; phiên đăng nhập</h2>
+    <ul>
+      <li>Nút <strong>Đăng xuất</strong> trên thanh trên cùng ở màn hình chơi và màn hình nợ (không có trong hộp thoại vay — hộp thoại vẫn bắt buộc vay).</li>
+      <li>Đăng xuất → xoá phiên trên trình duyệt, quay về S-00. Tiến độ vẫn còn trên máy chủ.</li>
+      <li>Phiên đăng nhập được nhớ: tải lại trang hay mở lại trình duyệt không phải đăng nhập lại (Supabase tự làm mới phiên).</li>
+      <li>Phiên hết hạn hoặc bị thu hồi giữa chừng → lệnh tiếp theo báo lỗi, game đưa về S-00 với thông báo "Phiên đăng nhập đã hết, vui lòng đăng nhập lại."</li>
+    </ul>
+
+    <h2 id="f01"><span class="num">F-01</span>Khởi động &amp; khôi phục tiến độ</h2>
+    <p>Sau khi đăng nhập, game gọi máy chủ để lấy tiến độ của tài khoản.</p>
+    <ul>
+      <li>Tài khoản chưa có tiến độ → máy chủ tạo ván mới: số dư 1.000.000 đ, nợ cũ 0, nợ ván này 0, đã vay 0/3.</li>
+      <li>Đã có → khôi phục đúng trạng thái: đang chơi, đang chờ vay, hoặc đang ở màn hình nợ.</li>
+      <li>Đăng nhập cùng tài khoản ở trình duyệt / thiết bị khác → thấy cùng tiến độ.</li>
+      <li>Không kết nối được máy chủ → báo lỗi và nút <strong>Thử lại</strong>; không hiện số liệu cũ hay giả.</li>
     </ul>
     <p><strong>Chấp nhận khi:</strong> tải lại trang ở bất kỳ thời điểm nào đều quay về đúng số dư, số lần vay, nợ và màn hình trước đó.</p>
 
@@ -69,7 +91,8 @@
 
     <h2 id="f03"><span class="num">F-03</span>Tung xu</h2>
     <ul>
-      <li>Bấm <strong>Tung xu</strong> → kết quả được quyết định <strong>ngay lập tức</strong> theo <a href="04-quy-tac-du-lieu.html#do-kho">bảng độ khó</a> và lưu lại, sau đó mới chạy hiệu ứng xoay khoảng 1,5 giây.</li>
+      <li>Bấm <strong>Tung xu</strong> → trình duyệt gửi lựa chọn lên máy chủ; <strong>máy chủ</strong> quyết định kết quả theo <a href="04-quy-tac-du-lieu.html#do-kho">bảng độ khó</a>, lưu lại rồi trả về. Đồng xu bắt đầu xoay ngay khi bấm và dừng ở mặt kết quả sau khi có trả lời, tổng cộng ít nhất khoảng 1,5 giây.</li>
+      <li>Máy chủ không trả lời (mất mạng, lỗi) → dừng xoay, hiện "Không kết nối được máy chủ, thử lại." rồi tải lại tiến độ từ máy chủ để hiện đúng số dư thật.</li>
       <li>Trong lúc xoay: khoá nút Tung xu và nút chọn mặt.</li>
       <li>Kết thúc hiệu ứng: đồng xu dừng ở mặt kết quả, hiện thông báo đúng/sai.</li>
       <li>Người dùng bật "giảm chuyển động" trong hệ điều hành → bỏ hiệu ứng xoay, hiện kết quả ngay.</li>
@@ -78,7 +101,7 @@
     </ul>
     <div class="callout">
       <span class="label">Vì sao quyết định kết quả trước hiệu ứng?</span>
-      <p>Để người chơi không thể tải lại trang giữa lúc xu đang xoay nhằm né một lượt thua.</p>
+      <p>Để người chơi không thể tải lại trang giữa lúc xu đang xoay nhằm né một lượt thua. Vì kết quả do máy chủ quyết định và đã lưu trước khi trình duyệt nhận được, sửa code trên trình duyệt cũng không đổi được kết quả.</p>
     </div>
 
     <h2 id="f04"><span class="num">F-04</span>Tính kết quả &amp; cập nhật tiền</h2>
@@ -103,7 +126,7 @@
     <h2 id="f06"><span class="num">F-06</span>Kết thúc ván &amp; thông báo nợ</h2>
     <ul>
       <li>Đã vay 3 lần và số dư về 0 → ván kết thúc. Trước hết cộng nợ ván này vào nợ cũ.</li>
-      <li>Hiện màn hình nợ với câu: <em>"Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</em></li>
+      <li>Hiện màn hình nợ với câu: <em>"Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)"</em></li>
       <li>X = tổng nợ cộng dồn sau khi đã cộng ván này (ván thua đầu tiên: 18.000.000 đ; ván thứ hai: 36.000.000 đ; …).</li>
       <li>Hiển thị thống kê ván: số lượt, thắng, thua; và số ván đã thua.</li>
       <li>Dòng chú thích luôn có: "Đây là trò chơi giải trí, tiền trong game là tiền ảo."</li>
@@ -119,9 +142,10 @@
 
     <h2 id="f08"><span class="num">F-08</span>Lưu tiến độ</h2>
     <ul>
-      <li>Lưu ngay sau mỗi thay đổi: kết quả tung, vay, kết thúc ván, chơi lại, bật/tắt âm thanh.</li>
-      <li>Lưu trong <code>localStorage</code> của trình duyệt; chỉ có trên máy và trình duyệt đó.</li>
-      <li>Trình duyệt chặn lưu trữ (ví dụ chế độ riêng tư) → game vẫn chơi được bình thường, chỉ là không nhớ được khi tải lại.</li>
+      <li>Mỗi lệnh (tung xu, vay, chơi lại) được máy chủ thực hiện và lưu trong cùng một giao dịch; kết thúc ván cũng do máy chủ tự xử lý khi lượt thua cuối xảy ra.</li>
+      <li>Tiến độ lưu trên Supabase theo tài khoản; dùng được trên mọi trình duyệt / thiết bị.</li>
+      <li>Lựa chọn Sấp/Ngửa được lưu cùng lượt tung; lựa chọn chưa tung chỉ nằm trên trang.</li>
+      <li>Bật/tắt âm thanh vẫn lưu trong <code>localStorage</code> của trình duyệt; bị chặn lưu trữ thì chỉ là không nhớ lựa chọn âm thanh.</li>
     </ul>
 
     <h2 id="f09"><span class="num">F-09</span>Lịch sử &amp; thống kê</h2>

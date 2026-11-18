@@ -187,7 +187,7 @@
     tc('TC-15', 'Câu thông báo nợ ván đầu khớp nguyên văn', () => {
       const s = thuaHetVan(L.taoVanMoi(0, 0, 'ngua'));
       const cau = L.cauThongBaoNo(s);
-      const mong = 'Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.';
+      const mong = 'Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)';
       return [cau.replace(/ /g, ' ') === mong, cau];
     });
     tc('TC-17', 'Chơi lại: 1.000.000 đ, 0 lần vay, lịch sử rỗng, nợ cũ 18.000.000 đ, tỉ lệ lượt đầu 80%', () => {

@@ -1,13 +1,17 @@
 /* RichVip — mini game đoán Sấp / Ngửa.
  * Tài liệu: docs/02-chuc-nang.html, docs/03-man-hinh.html, docs/04-quy-tac-du-lieu.html.
  *
+ * Khi app/config.js có supabaseUrl: bắt buộc đăng nhập Google, luật chơi chạy trên máy chủ
+ * (supabase/schema.sql, gọi qua app/may-chu.js). Khi để trống: chế độ cục bộ, luật chạy bằng
+ * logic thuần dưới đây và lưu localStorage (docs/04 §11).
+ *
  * Cấu trúc file:
- *   1. Hằng số cấu hình            (docs/04 §1)
- *   2. Logic thuần — không đụng DOM (docs/04 §2–§4, §7). Dùng chung cho game và app/test.html.
- *   3. Lưu trữ localStorage        (docs/04 §6, §8)
+ *   1. Hằng số cấu hình            (docs/04 §1 — bản sao của rv_cau_hinh() trên máy chủ)
+ *   2. Logic thuần — không đụng DOM (docs/04 §2–§4, §7). Dùng cho chế độ cục bộ, kiểm tra dữ liệu và app/test.html.
+ *   3. Lưu trữ localStorage        (docs/04 §6, §10)
  *   4. Âm thanh tổng hợp            (F-10)
  *   5. Giao diện                    (chỉ chạy khi trang có #game-root)
- *   6. Công cụ test ?test=1         (docs/05 §3)
+ *   6. Công cụ test ?test=1         (docs/05 §3 — chỉ ở chế độ cục bộ)
  */
 (function () {
   'use strict';
@@ -21,6 +25,7 @@
     CAC_MUC_VAY: Object.freeze([3000000, 5000000, 10000000]),
     SO_LAN_VAY_TOI_DA: 3,
     SO_TAI_KHOAN: 'ACB 99995886',
+    GHI_CHU_NO_AO: '(Nợ ảo trong game, không cần chuyển tiền thật.)',
     SO_DONG_LICH_SU: 10,
     THOI_GIAN_XOAY: 1500,
     TI_LE_THEO_LUOT: Object.freeze([0.8, 0.6, 0.4, 0.2, 0]),
@@ -136,7 +141,7 @@
 
   function cauThongBaoNo(s) {
     return 'Bạn nợ số tiền là ' + dinhDangTien(s.noCu) + ', vui lòng chuyển khoản vào số tài khoản ' +
-      CAU_HINH.SO_TAI_KHOAN + ' để trả nợ.';
+      CAU_HINH.SO_TAI_KHOAN + ' để trả nợ. ' + CAU_HINH.GHI_CHU_NO_AO;
   }
 
   /** Kiểm tra dữ liệu đọc lên (docs/04 §7). Trả về '' nếu hợp lệ, ngược lại là lý do. */
@@ -302,7 +307,9 @@
 
   const $ = (id) => document.getElementById(id);
   const el = {
-    btnAmThanh: $('btn-am-thanh'),
+    btnAmThanh: $('btn-am-thanh'), daiCucBo: $('dai-cuc-bo'),
+    khuNguoiChoi: $('khu-nguoi-choi'), tenNguoiChoi: $('ten-nguoi-choi'), btnDangXuat: $('btn-dang-xuat'),
+    manDangNhap: $('man-dang-nhap'), dnTieuDe: $('dn-tieu-de'), dnLoi: $('dn-loi'), btnDangNhap: $('btn-dang-nhap'),
     manChoi: $('man-choi'), manNo: $('man-no'), hopVay: $('hop-vay'),
     soDu: $('so-du'), daVay: $('da-vay'), noVanNay: $('no-van-nay'), oNoCu: $('o-no-cu'), noCu: $('no-cu'),
     coinInner: $('coin-inner'), coinFront: $('coin-front'), coinBack: $('coin-back'),
@@ -315,15 +322,68 @@
   };
 
   const giamChuyenDong = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
-  const CHE_DO_TEST = new URLSearchParams(window.location.search).get('test') === '1';
+  const MayChu = window.RichVipMayChu;
+  // Chế độ cục bộ (docs/04 §11): app/config.js chưa có supabaseUrl → không đăng nhập, luật chạy bằng game.js.
+  const CHE_DO_CUC_BO = !MayChu || !MayChu.coCauHinh;
+  const CHE_DO_TEST = CHE_DO_CUC_BO && new URLSearchParams(window.location.search).get('test') === '1';
 
-  let state = docState();
-  let dangXoay = false;
-  let soDuDangHien = state.soDu;
+  let state = null;           // null khi chưa đăng nhập / chưa tải xong
+  let dangXoay = false;       // đang tung xu (chờ máy chủ + hiệu ứng)
+  let dangGui = false;        // đang chờ máy chủ cho lệnh Vay / Chơi lại
+  let soDuDangHien = 0;
   let hoatAnhSo = 0;
   let trangThaiPhuDangHien = null; // để biết lúc nào vừa mở hộp thoại / màn hình nợ
+  let phienHienTai = null;
+  let dangXuatChuDong = false;
+  let nutDangNhapLa = 'dang-nhap'; // 'dang-nhap' | 'thu-lai'
 
-  function luu() { LuuTru.ghi(KHOA_STATE, JSON.stringify(state)); }
+  /* ---------- Nguồn dữ liệu: cục bộ hoặc máy chủ, cùng một giao diện bất đồng bộ ---------- */
+  function luuCucBo() { LuuTru.ghi(KHOA_STATE, JSON.stringify(state)); }
+
+  const NguonCucBo = {
+    async layTienDo() { return docState(); },
+    async tungXu(chon) {
+      const kq = tungXu(Object.assign({}, state, { luaChon: chon }), { ep: CHE_DO_TEST ? CongCuTest.layEp() : null });
+      if (!kq) throw Object.assign(new Error('Không tung được lúc này'), { loai: 'dieu-kien' });
+      LuuTru.ghi(KHOA_STATE, JSON.stringify(kq.state)); // lưu NGAY, trước hiệu ứng
+      return kq;
+    },
+    async vay() {
+      const moi = vay(state);
+      if (!moi) throw Object.assign(new Error('Chưa được vay'), { loai: 'dieu-kien' });
+      LuuTru.ghi(KHOA_STATE, JSON.stringify(moi));
+      return moi;
+    },
+    async choiLai() {
+      const moi = choiLai(state);
+      if (!moi) throw Object.assign(new Error('Ván chưa kết thúc'), { loai: 'dieu-kien' });
+      LuuTru.ghi(KHOA_STATE, JSON.stringify(moi));
+      return moi;
+    },
+  };
+
+  /** Kiểm tra lại dữ liệu máy chủ trả về trước khi vẽ (phòng lệch phiên bản giữa SQL và game.js). */
+  function hopLe(s) {
+    const loi = kiemTra(s);
+    if (loi) {
+      console.warn('[RichVip] Dữ liệu máy chủ không hợp lệ (' + loi + ').', s);
+      throw Object.assign(new Error('Dữ liệu máy chủ không hợp lệ'), { loai: 'khac' });
+    }
+    return s;
+  }
+
+  const NguonMayChu = {
+    async layTienDo() { return hopLe(await MayChu.layTienDo()); },
+    async tungXu(chon) {
+      const kq = await MayChu.tungXu(chon);
+      hopLe(kq && kq.state);
+      return { state: kq.state, ketQua: kq.ketQua, dung: kq.dung };
+    },
+    async vay() { return hopLe(await MayChu.vay()); },
+    async choiLai() { return hopLe(await MayChu.choiLai()); },
+  };
+
+  const nguon = CHE_DO_CUC_BO ? NguonCucBo : NguonMayChu;
 
   // ---------- Số dư nhảy số ----------
   function hienSoDu(gt, hieuUng) {
@@ -381,12 +441,13 @@
   }
 
   /**
-   * Vẽ giao diện theo trạng thái v.
+   * Vẽ giao diện game theo trạng thái v.
    * tuyChon.giuManChoi: giữ màn hình chơi (chưa mở hộp thoại / màn hình nợ) để người chơi kịp thấy kết quả.
    */
   function ve(v, tuyChon = {}) {
     const giu = !!tuyChon.giuManChoi;
     const phu = giu ? 'dang-choi' : v.trangThai;
+    el.manDangNhap.hidden = true;
 
     hienSoDu(v.soDu, !!tuyChon.hieuUngSo);
     el.daVay.textContent = v.soLanVay + ' / ' + CAU_HINH.SO_LAN_VAY_TOI_DA;
@@ -394,7 +455,7 @@
     el.oNoCu.hidden = v.noCu === 0;
     el.noCu.textContent = dinhDangTien(v.noCu);
 
-    el.coinFront.textContent = v.matXuCuoi ? TEN_MAT[v.matXuCuoi] : '?';
+    if (!dangXoay) el.coinFront.textContent = v.matXuCuoi ? TEN_MAT[v.matXuCuoi] : '?';
 
     const khoa = dangXoay || v.trangThai !== 'dang-choi' || v.soDu === 0;
     for (const [btn, mat] of [[el.btnSap, 'sap'], [el.btnNgua, 'ngua']]) {
@@ -403,6 +464,9 @@
     }
     el.btnTung.disabled = khoa || !v.luaChon;
     el.btnTung.textContent = dangXoay ? 'Đang tung…' : 'Tung xu';
+    el.btnVay.disabled = dangGui;
+    el.btnChoiLai.disabled = dangGui;
+    el.btnDangXuat.disabled = dangXoay || dangGui;
 
     veLichSu(v);
 
@@ -415,8 +479,11 @@
       const so = document.createElement('span');
       so.className = 'debt-amount';
       so.textContent = dinhDangTien(v.noCu);
-      const sau = document.createTextNode(', vui lòng chuyển khoản vào số tài khoản ' + CAU_HINH.SO_TAI_KHOAN + ' để trả nợ.');
-      el.cauNo.append(truoc, so, sau);
+      const sau = document.createTextNode(', vui lòng chuyển khoản vào số tài khoản ' + CAU_HINH.SO_TAI_KHOAN + ' để trả nợ. ');
+      const ghiChu = document.createElement('span');
+      ghiChu.className = 'debt-note';
+      ghiChu.textContent = CAU_HINH.GHI_CHU_NO_AO;
+      el.cauNo.append(truoc, so, sau, ghiChu);
       el.noLuot.textContent = v.thongKe.soLuot;
       el.noThang.textContent = v.thongKe.soThang;
       el.noThua.textContent = v.thongKe.soThua;
@@ -430,7 +497,7 @@
       const tien = dinhDangTien(mucVayKeTiep(v));
       el.vayCau.textContent = 'Vay thêm ' + tien + ' để chơi tiếp?';
       el.vayCon.textContent = 'Còn được vay ' + (CAU_HINH.SO_LAN_VAY_TOI_DA - v.soLanVay) + ' / ' + CAU_HINH.SO_LAN_VAY_TOI_DA + ' lần trong ván này.';
-      el.btnVay.textContent = 'Vay ' + tien;
+      el.btnVay.textContent = dangGui ? 'Đang vay…' : 'Vay ' + tien;
     }
     goc.inert = moVay; // khoá mọi thứ phía sau hộp thoại
 
@@ -438,11 +505,33 @@
     if (phu !== trangThaiPhuDangHien) {
       if (phu === 'cho-vay') el.btnVay.focus();
       else if (phu === 'ket-thuc') el.manNo.querySelector('#no-tieu-de').focus();
-      else if (trangThaiPhuDangHien !== null) (el.btnTung.disabled ? el.btnSap : el.btnTung).focus();
+      else if (trangThaiPhuDangHien !== null && trangThaiPhuDangHien !== 'dang-nhap') (el.btnTung.disabled ? el.btnSap : el.btnTung).focus();
       trangThaiPhuDangHien = phu;
     }
 
     if (CHE_DO_TEST) CongCuTest.capNhat(v);
+  }
+
+  /**
+   * Màn hình đăng nhập (S-00).
+   * tuyChon: { ban: khoá nút, chu: chữ trên nút, loi: thông báo lỗi, thuLai: nút thành "Thử lại" }
+   */
+  function hienDangNhap(tuyChon = {}) {
+    const tuGame = trangThaiPhuDangHien !== null && trangThaiPhuDangHien !== 'dang-nhap';
+    state = tuyChon.giuState ? state : null;
+    goc.inert = false;
+    el.hopVay.hidden = true;
+    el.manChoi.hidden = true;
+    el.manNo.hidden = true;
+    el.khuNguoiChoi.hidden = true;
+    el.manDangNhap.hidden = false;
+    nutDangNhapLa = tuyChon.thuLai ? 'thu-lai' : 'dang-nhap';
+    el.btnDangNhap.disabled = !!tuyChon.ban;
+    el.btnDangNhap.textContent = tuyChon.chu || (tuyChon.thuLai ? 'Thử lại' : 'Đăng nhập bằng Google');
+    el.dnLoi.hidden = !tuyChon.loi;
+    el.dnLoi.textContent = tuyChon.loi || '';
+    if (tuGame) el.dnTieuDe.focus();
+    trangThaiPhuDangHien = 'dang-nhap';
   }
 
   function hienThongBao(noiDung, loai) {
@@ -451,6 +540,23 @@
   }
 
   // ---------- Hiệu ứng tung xu ----------
+  /** Xoay liên tục trong lúc chờ máy chủ. dung() chờ hết vòng đang dở (góc về 0°) rồi dừng. */
+  function batDauQuayCho() {
+    if (giamChuyenDong.matches || typeof el.coinInner.animate !== 'function') return { dung: () => Promise.resolve() };
+    const VONG = 360;
+    el.coinBack.textContent = '?';
+    const anim = el.coinInner.animate(
+      [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(360deg)' }],
+      { duration: VONG, iterations: Infinity });
+    return {
+      dung: () => new Promise((xong) => {
+        const t = anim.currentTime;
+        const con = typeof t === 'number' && t > 0 ? VONG - (t % VONG) : 0;
+        setTimeout(() => { anim.cancel(); xong(); }, con);
+      }),
+    };
+  }
+
   function quayXu(ketQua, xong) {
     el.coinBack.textContent = TEN_MAT[ketQua];
     const ketThuc = () => { el.coinFront.textContent = TEN_MAT[ketQua]; xong(); };
@@ -468,31 +574,64 @@
     anim.onfinish = ketThuc;
   }
 
+  // ---------- Lỗi khi gọi máy chủ ----------
+  async function xuLyLoi(e) {
+    if (e && e.loai === 'phien') {
+      dangXuatChuDong = true;
+      if (MayChu) await MayChu.dangXuat();
+      dangXuatChuDong = false;
+      hienDangNhap({ loi: 'Phiên đăng nhập đã hết, vui lòng đăng nhập lại.' });
+      return;
+    }
+    hienThongBao(e && e.loai === 'mang' ? 'Không kết nối được máy chủ, thử lại.' : 'Có lỗi xảy ra, đã tải lại tiến độ.', 'lose');
+    if (state) ve(state);
+    if (CHE_DO_CUC_BO) return;
+    // Lệnh có thể đã được máy chủ thực hiện dù trình duyệt không nhận được trả lời: lấy lại trạng thái thật.
+    try {
+      const moi = await nguon.layTienDo();
+      if (!state || dangXoay || dangGui) return;
+      state = moi;
+      ve(state, { hieuUngSo: true });
+    } catch (e2) {
+      if (e2 && e2.loai === 'phien') xuLyLoi(e2);
+    }
+  }
+
   // ---------- Sự kiện ----------
   function chonMat(mat) {
-    if (dangXoay || state.trangThai !== 'dang-choi') return;
+    if (!state || dangXoay || state.trangThai !== 'dang-choi') return;
     state = Object.assign({}, state, { luaChon: mat });
-    luu();
+    if (CHE_DO_CUC_BO) luuCucBo(); // trên máy chủ, lựa chọn được lưu cùng lượt tung
     ve(state);
   }
 
-  function tung() {
-    if (dangXoay) return;
-    const ep = CHE_DO_TEST ? CongCuTest.layEp() : null;
-    const kq = tungXu(state, { ep });
-    if (!kq) return;
-
+  async function tung() {
+    if (!state || dangXoay || dangGui || state.trangThai !== 'dang-choi' || !state.luaChon || state.soDu <= 0) return;
     const truoc = state;
     const dangDungPhim = document.activeElement === el.btnTung; // nút sắp bị khoá → nhớ để trả tiêu điểm
-    state = kq.state;
-    luu(); // lưu NGAY, trước hiệu ứng — tải lại trang giữa chừng không né được lượt thua
     dangXoay = true;
     hienThongBao('', '');
     ve(truoc);
+    const quayCho = batDauQuayCho();
+
+    let kq;
+    try {
+      kq = await nguon.tungXu(truoc.luaChon); // kết quả được quyết định và lưu TRƯỚC hiệu ứng
+    } catch (e) {
+      await quayCho.dung();
+      dangXoay = false;
+      if (state) ve(state);
+      xuLyLoi(e);
+      return;
+    }
+    await quayCho.dung();
+    if (!state) return; // đã đăng xuất trong lúc chờ
+    state = kq.state;
     AmThanh.xoay(giamChuyenDong.matches ? 300 : CAU_HINH.THOI_GIAN_XOAY);
 
     quayXu(kq.ketQua, () => {
       dangXoay = false;
+      if (!state) return;
       const doi = state.trangThai !== 'dang-choi';
       ve(state, { hieuUngSo: true, giuManChoi: doi });
       if (dangDungPhim && !doi && !el.btnTung.disabled) el.btnTung.focus();
@@ -506,7 +645,7 @@
       }
       if (doi) {
         setTimeout(() => {
-          if (state !== kq.state) return; // trạng thái đã đổi (ví dụ công cụ test)
+          if (state !== kq.state) return; // trạng thái đã đổi (ví dụ công cụ test, đăng xuất)
           ve(state);
           if (state.trangThai === 'ket-thuc') AmThanh.ketThuc();
         }, giamChuyenDong.matches ? 300 : 1100);
@@ -514,23 +653,41 @@
     });
   }
 
-  function batDauVay() {
-    const moi = vay(state);
-    if (!moi) return;
+  /** Gửi lệnh Vay / Chơi lại; khoá nút trong lúc chờ để không gửi hai lần. */
+  async function guiLenh(lenh, khiXong) {
+    if (!state || dangXoay || dangGui) return;
+    dangGui = true;
+    ve(state);
+    let moi;
+    try {
+      moi = await lenh();
+    } catch (e) {
+      dangGui = false;
+      if (state) ve(state);
+      xuLyLoi(e);
+      return;
+    }
+    dangGui = false;
+    if (!state) return;
     state = moi;
-    luu();
-    AmThanh.vay();
-    ve(state, { hieuUngSo: true });
-    hienThongBao('Đã vay thêm ' + dinhDangTien(state.lichSu[0].soTien) + '.', 'info');
+    khiXong();
+  }
+
+  function batDauVay() {
+    if (!state || state.trangThai !== 'cho-vay') return;
+    guiLenh(() => nguon.vay(), () => {
+      AmThanh.vay();
+      ve(state, { hieuUngSo: true });
+      hienThongBao('Đã vay thêm ' + dinhDangTien(state.lichSu[0].soTien) + '.', 'info');
+    });
   }
 
   function batDauChoiLai() {
-    const moi = choiLai(state);
-    if (!moi) return;
-    state = moi;
-    luu();
-    hienThongBao('', '');
-    ve(state);
+    if (!state || state.trangThai !== 'ket-thuc') return;
+    guiLenh(() => nguon.choiLai(), () => {
+      hienThongBao('', '');
+      ve(state);
+    });
   }
 
   function veNutAmThanh() {
@@ -541,11 +698,58 @@
     el.btnAmThanh.title = nhan;
   }
 
+  // ---------- Đăng nhập / đăng xuất (F-11, F-12) ----------
+  async function taiVaVaoGame() {
+    hienDangNhap({ ban: true, chu: 'Đang tải…' });
+    let s;
+    try {
+      s = await nguon.layTienDo();
+    } catch (e) {
+      if (e && e.loai === 'phien') return xuLyLoi(e);
+      hienDangNhap({ thuLai: true, loi: 'Không tải được tiến độ. Kiểm tra kết nối mạng rồi thử lại.' });
+      return;
+    }
+    if (!phienHienTai) return; // đã đăng xuất trong lúc tải
+    el.tenNguoiChoi.textContent = MayChu.tenHienThi(phienHienTai);
+    el.tenNguoiChoi.title = el.tenNguoiChoi.textContent;
+    el.khuNguoiChoi.hidden = false;
+    vaoGame(s);
+  }
+
+  function vaoGame(s) {
+    state = s;
+    soDuDangHien = state.soDu;
+    hienThongBao('', '');
+    ve(state);
+  }
+
+  async function bamDangNhap() {
+    if (nutDangNhapLa === 'thu-lai') return taiVaVaoGame();
+    hienDangNhap({ ban: true, chu: 'Đang đăng nhập…' });
+    try {
+      await MayChu.dangNhap(); // trình duyệt sẽ chuyển sang trang của Google
+    } catch (e) {
+      hienDangNhap({ loi: 'Không mở được trang đăng nhập Google. Kiểm tra kết nối mạng rồi thử lại.' });
+    }
+  }
+
+  async function bamDangXuat() {
+    if (dangXoay || dangGui) return;
+    dangXuatChuDong = true;
+    phienHienTai = null;
+    await MayChu.dangXuat();
+    dangXuatChuDong = false;
+    hienThongBao('', '');
+    hienDangNhap({});
+  }
+
   el.btnSap.addEventListener('click', () => chonMat('sap'));
   el.btnNgua.addEventListener('click', () => chonMat('ngua'));
   el.btnTung.addEventListener('click', tung);
   el.btnVay.addEventListener('click', batDauVay);
   el.btnChoiLai.addEventListener('click', batDauChoiLai);
+  el.btnDangNhap.addEventListener('click', bamDangNhap);
+  el.btnDangXuat.addEventListener('click', bamDangXuat);
   el.btnAmThanh.addEventListener('click', () => {
     AmThanh.datBat(!AmThanh.dangBat());
     AmThanh.mo();
@@ -568,7 +772,7 @@
   window.addEventListener('keydown', moAmThanh, { once: true, capture: true });
 
   /* ======================================================================
-   * 6. CÔNG CỤ TEST — chỉ khi mở với ?test=1
+   * 6. CÔNG CỤ TEST — chỉ khi mở với ?test=1 ở chế độ cục bộ
    * ==================================================================== */
   const CongCuTest = (function () {
     if (!CHE_DO_TEST) return null;
@@ -618,7 +822,7 @@
         s.thongKe = { soLuot: 30, soThang: 10, soThua: 20 };
       }
       state = s;
-      if (loai !== 'xoa') luu();
+      if (loai !== 'xoa') luuCucBo();
       soDuDangHien = state.soDu;
       hienThongBao('Đã nạp trạng thái mẫu.', 'info');
       ve(state);
@@ -626,6 +830,7 @@
     panel.querySelectorAll('[data-mau]').forEach((b) => b.addEventListener('click', () => napMau(b.dataset.mau)));
 
     function capNhat(v) {
+      if (!v) return;
       const tl = v.trangThai === 'dang-choi' ? Math.round(tiLeThang(v) * 100) + '%' : '—';
       info.textContent = 'Lượt tới: ' + (v.thongKe.soLuot + 1) + ' · tỉ lệ thắng theo bảng: ' + tl +
         ' · ép: ' + (ep ? TEN_MAT[ep] : 'không');
@@ -642,8 +847,43 @@
   })();
 
   /* ---------- Khởi động ---------- */
-  AmThanh.datBat(LuuTru.doc(KHOA_AM_THANH) !== 'tat');
-  veNutAmThanh();
-  soDuDangHien = state.soDu;
-  ve(state);
+  async function khoiDong() {
+    AmThanh.datBat(LuuTru.doc(KHOA_AM_THANH) !== 'tat');
+    veNutAmThanh();
+
+    if (CHE_DO_CUC_BO) {
+      el.daiCucBo.hidden = false;
+      vaoGame(await NguonCucBo.layTienDo());
+      return;
+    }
+
+    hienDangNhap({ ban: true, chu: 'Đang tải…' });
+    try {
+      phienHienTai = await MayChu.khoiTao();
+    } catch (e) {
+      if (e.loai === 'thu-vien') {
+        hienDangNhap({ ban: true, loi: 'Không tải được thư viện đăng nhập. Kiểm tra kết nối mạng rồi tải lại trang.' });
+      } else if (e.loai === 'dang-nhap') {
+        hienDangNhap({ loi: 'Đăng nhập chưa thành công (' + e.message + '). Bạn có thể thử lại.' });
+      } else {
+        hienDangNhap({ loi: 'Không khởi động được đăng nhập. Thử tải lại trang.' });
+      }
+      return;
+    }
+
+    MayChu.khiDoiPhien((phien, suKien) => {
+      if (phien) { phienHienTai = phien; return; } // làm mới phiên, đăng nhập ở tab khác…
+      if (suKien !== 'SIGNED_OUT' || dangXuatChuDong || !phienHienTai) return;
+      // Phiên hết hạn hoặc bị đăng xuất ở tab khác
+      phienHienTai = null;
+      dangXoay = false;
+      dangGui = false;
+      hienDangNhap({ loi: 'Phiên đăng nhập đã hết, vui lòng đăng nhập lại.' });
+    });
+
+    if (phienHienTai) taiVaVaoGame();
+    else hienDangNhap({});
+  }
+
+  khoiDong();
 })();

@@ -28,7 +28,7 @@
     <div class="page-head">
       <div class="eyebrow">01 · Tổng quan</div>
       <h1>Tổng quan dự án</h1>
-      <p class="lead">RichVip là mini game đoán mặt đồng xu, chạy hoàn toàn trên trình duyệt. Người chơi cược 500.000 đ mỗi lượt, được vay khi hết tiền, và nhận "giấy báo nợ" khi thua sạch.</p>
+      <p class="lead">RichVip là mini game đoán mặt đồng xu chạy trên trình duyệt, đăng nhập bằng tài khoản Google. Người chơi cược 500.000 đ mỗi lượt, được vay khi hết tiền, và nhận "giấy báo nợ" khi thua sạch.</p>
     </div>
 
     <nav class="toc" aria-label="Trong trang này">
@@ -60,15 +60,16 @@
       <li>Đã vay đủ 3 lần mà số dư lại về 0 → ván kết thúc, hiện thông báo nợ.</li>
       <li>Không có nút dừng giữa chừng: ván chỉ kết thúc khi thua hết.</li>
       <li>Chơi lại → ván mới, nhưng <strong>nợ cũ được cộng dồn</strong>.</li>
+      <li>Phải <strong>đăng nhập Google</strong> mới chơi được; tiến độ và nợ gắn với tài khoản, lưu trên máy chủ.</li>
     </ol>
 
     <div class="callout danger">
       <span class="label">Thông báo khi thua</span>
-      <p>"Bạn nợ số tiền là <strong>X</strong>, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."</p>
+      <p>"Bạn nợ số tiền là <strong>X</strong>, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)"</p>
       <p>X = nợ cũ cộng dồn + nợ của ván vừa thua. Bên dưới luôn có dòng ghi chú: "Đây là trò chơi giải trí, tiền trong game là tiền ảo."</p>
     </div>
 
-    <h2 id="quyet-dinh"><span class="num">3.</span>Quyết định đã chốt (phỏng vấn &amp; bổ sung 17/11/2026)</h2>
+    <h2 id="quyet-dinh"><span class="num">3.</span>Quyết định đã chốt (phỏng vấn 17/11 và 18/11/2026)</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>#</th><th>Câu hỏi</th><th>Quyết định</th><th>So với YEU-CAU.md</th></tr></thead>
@@ -80,6 +81,11 @@
           <tr><td class="id">Q5</td><td>Nợ cũ khi chơi lại</td><td>Cộng dồn sang ván sau.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
           <tr><td class="id">B1</td><td>Tỉ lệ thắng (bổ sung)</td><td>Không còn 50/50: độ khó tăng dần theo số lượt và số lần vay, cuối cùng luôn thua.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
           <tr><td class="id">B2</td><td>Số tiền vay (bổ sung)</td><td>3.000.000 đ, 5.000.000 đ, 10.000.000 đ cho lần 1, 2, 3.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q6</td><td>Cách đăng nhập</td><td>Tài khoản Google, qua Supabase Auth.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q7</td><td>Chơi khi chưa đăng nhập?</td><td>Không. Bắt buộc đăng nhập; tiến độ chỉ lưu trên Supabase.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q8</td><td>Câu báo nợ khi có tài khoản thật</td><td>Giữ câu gốc, thêm ngay sau: "(Nợ ảo trong game, không cần chuyển tiền thật.)"</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q9</td><td>Đưa giao diện lên mạng</td><td>GitHub Pages; chuyển repo sang public.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
+          <tr><td class="id">Q10</td><td>Chống gian lận</td><td>Luật chơi chạy trong hàm SQL trên Supabase; trình duyệt chỉ gửi lựa chọn và lệnh.</td><td><span class="badge badge-gold">Thay đổi</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -87,27 +93,33 @@
     <h2 id="pham-vi"><span class="num">4.</span>Phạm vi</h2>
     <h3>Trong phạm vi</h3>
     <ul>
-      <li>Một trang game duy nhất, chạy bằng cách mở file HTML.</li>
+      <li>Một trang game duy nhất trên GitHub Pages (và chạy được bằng Docker trên máy).</li>
+      <li>Đăng nhập / đăng xuất bằng tài khoản Google.</li>
       <li>Tung xu, tính tiền, vay tiền, màn hình nợ, chơi lại.</li>
       <li>Lịch sử 10 lượt gần nhất, thống kê thắng/thua.</li>
-      <li>Lưu tiến độ và nợ cộng dồn trong trình duyệt.</li>
+      <li>Lưu tiến độ và nợ cộng dồn trên Supabase theo tài khoản, dùng được trên nhiều thiết bị.</li>
+      <li>Luật chơi tính trên máy chủ để chống gian lận.</li>
       <li>Âm thanh và nút tắt âm thanh.</li>
       <li>Giao diện responsive theo <code>design/tokens.css</code>.</li>
     </ul>
     <h3>Ngoài phạm vi</h3>
     <ul>
-      <li>Đăng nhập, tài khoản, máy chủ, bảng xếp hạng.</li>
+      <li>Đăng nhập bằng email/mật khẩu hay mạng xã hội khác; chơi khi chưa đăng nhập.</li>
+      <li>Bảng xếp hạng; xoá tài khoản từ trong game.</li>
       <li>Nút dừng / chốt kết quả giữa ván.</li>
       <li>Chọn mức cược khác 500.000 đ.</li>
       <li>Trả nợ bằng tiền thắng; xoá nợ từ trong game.</li>
-      <li>Đồng bộ tiến độ giữa nhiều trình duyệt hoặc thiết bị.</li>
-    </ul>
+      </ul>
 
     <h2 id="cong-nghe"><span class="num">5.</span>Nền tảng &amp; công nghệ</h2>
     <ul>
       <li>HTML, CSS, JavaScript thuần — không framework, không cần build.</li>
       <li>Giao diện dùng <code>design/tokens.css</code>; font Playfair Display và Be Vietnam Pro.</li>
-      <li>Lưu dữ liệu bằng <code>localStorage</code>.</li>
+      <li><strong>Hosting giao diện:</strong> GitHub Pages (nhánh <code>main</code>, thư mục gốc); game ở <code>/richvip/app/</code>. Vẫn chạy được bằng Docker như trước.</li>
+      <li><strong>Đăng nhập:</strong> Supabase Auth, nhà cung cấp Google (OAuth). Thư viện <code>@supabase/supabase-js</code> v2 nạp từ CDN, ghi rõ phiên bản.</li>
+      <li><strong>Dữ liệu &amp; luật chơi:</strong> Postgres của Supabase; một bảng tiến độ, bật Row Level Security; các hàm SQL <code>rv_*</code> thực hiện tung xu, vay, chơi lại (xem <a href="04-quy-tac-du-lieu.html#may-chu">trang 04</a>).</li>
+      <li><strong>Bí mật:</strong> code trình duyệt chỉ chứa URL dự án và <em>anon key</em> (được phép công khai). Client secret của Google và service role key chỉ nằm trong trang quản trị Supabase / Google, không đưa vào repo.</li>
+      <li><code>localStorage</code> chỉ còn dùng để nhớ bật/tắt âm thanh.</li>
       <li>Hỗ trợ bản mới của Chrome, Safari, Firefox, Edge; màn hình từ 360px trở lên.</li>
     </ul>
 

@@ -9,6 +9,10 @@ docker-compose*.yml
 README.md
 YEU-CAU.md
 docs/
+supabase/
+scripts/
+index.html
+.nojekyll
 
 # Trang kiểm thử logic — không cần khi chạy thật
 app/test.html

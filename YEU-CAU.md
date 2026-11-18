@@ -2,7 +2,7 @@
 
 > Tài liệu mô tả yêu cầu cho mini game chạy trên trình duyệt. **Chưa bao gồm code.**
 > Toàn bộ tiền trong game là **tiền ảo**, chỉ dùng để giải trí.
-> Cập nhật 17/11/2026 theo buổi phỏng vấn làm rõ ý tưởng. Tài liệu chi tiết: `docs/index.html`.
+> Cập nhật 17/11/2026 theo buổi phỏng vấn làm rõ ý tưởng; cập nhật 18/11/2026: thêm đăng nhập Google và lưu tiến độ trên máy chủ (Supabase). Tài liệu chi tiết: `docs/index.html`.
 
 ---
 
@@ -10,7 +10,8 @@
 
 - **Tên game:** RichVip
 - **Thể loại:** Mini game đoán kết quả tung đồng xu.
-- **Nền tảng:** Trình duyệt web (desktop và điện thoại), chạy hoàn toàn phía client (HTML/CSS/JS), không cần server.
+- **Nền tảng:** Trình duyệt web (desktop và điện thoại). Giao diện là HTML/CSS/JS tĩnh, đặt trên **GitHub Pages** (repo public). Đăng nhập và dữ liệu dùng **Supabase** (Auth + Postgres).
+- **Tài khoản:** bắt buộc đăng nhập bằng **tài khoản Google** mới chơi được. Mỗi tài khoản có một tiến độ và một khoản nợ riêng, dùng được trên mọi thiết bị.
 - **Mục tiêu người chơi:** Đoán đúng kết quả đồng xu (Sấp hoặc Ngửa) để tăng số tiền.
 
 ---
@@ -42,12 +43,14 @@
 8. **Không có nút dừng / chốt kết quả:** ván chỉ kết thúc khi người chơi thua hết.
 9. **Kết thúc ván (thua cuộc):** khi đã vay đủ 3 lần và số dư lại về 0 → nợ ván này được cộng vào nợ cũ, rồi hiển thị màn hình kết quả với thông báo:
 
-   > **Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.**
+   > **Bạn nợ số tiền là X, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)**
 
    Trong đó **X** = tổng nợ cộng dồn của tất cả các ván đã thua (xem mục 3).
 10. **Chơi lại:** bắt đầu ván mới (số dư 1.000.000 đ, số lần vay 0, xoá lịch sử và thống kê ván), nhưng **nợ cũ được giữ và cộng dồn**. Trong game không có cách xoá nợ.
-11. **Lưu tiến độ:** mọi thay đổi được lưu trong trình duyệt (`localStorage`). Tải lại trang hoặc mở lại trình duyệt sẽ quay về đúng trạng thái trước đó: đang chơi, đang chờ vay, hay đang ở màn hình nợ. Kết quả tung được quyết định và lưu **trước** hiệu ứng xoay, nên tải lại trang không né được lượt thua.
-12. **Âm thanh:** có âm thanh khi tung xu, thắng, thua, vay và kết thúc ván. Mặc định bật, có nút tắt/bật và nhớ lựa chọn.
+11. **Lưu tiến độ:** tiến độ và nợ lưu trên máy chủ (Supabase) theo tài khoản. Tải lại trang, mở trình duyệt khác hoặc thiết bị khác rồi đăng nhập cùng tài khoản sẽ quay về đúng trạng thái: đang chơi, đang chờ vay, hay đang ở màn hình nợ. Kết quả tung được **máy chủ** quyết định và lưu **trước** khi trình duyệt chạy hiệu ứng xoay, nên tải lại trang không né được lượt thua.
+12. **Âm thanh:** có âm thanh khi tung xu, thắng, thua, vay và kết thúc ván. Mặc định bật, có nút tắt/bật và nhớ lựa chọn (lưu trong trình duyệt).
+13. **Đăng nhập:** chưa đăng nhập thì chỉ thấy màn hình đăng nhập với nút **Đăng nhập bằng Google**. Đã đăng nhập thì thanh trên cùng hiện tên người chơi và nút **Đăng xuất**.
+14. **Chống gian lận:** luật chơi (tung xu, tỉ lệ thắng, vay, kết thúc ván, chơi lại) chạy trong **hàm SQL trên Supabase**. Trình duyệt chỉ gửi lựa chọn Sấp/Ngửa và các lệnh Vay / Chơi lại; người chơi không tự sửa được số dư, số lần vay hay nợ.
 
 ---
 
@@ -75,9 +78,18 @@
 
 ## 4. Màn hình
 
+### 4.0. Màn hình Đăng nhập
+
+- Hiện khi chưa đăng nhập (hoặc sau khi đăng xuất).
+- Logo chữ "RichVip", một câu giới thiệu ngắn, nút **Đăng nhập bằng Google**.
+- Dòng chú thích: *"Đây là trò chơi giải trí, tiền trong game là tiền ảo."*
+- Khi đang chuyển sang Google hoặc đang tải tiến độ: nút bị khoá, hiện "Đang đăng nhập…" / "Đang tải…".
+- Lỗi đăng nhập hoặc mất kết nối: hiện thông báo lỗi màu đỏ và cho thử lại.
+
 ### 4.1. Màn hình Chơi (chính)
 
 - **Tiêu đề / logo:** "RichVip" (dạng chữ).
+- **Người chơi:** tên tài khoản Google và nút **Đăng xuất** ở thanh trên cùng.
 - **Nút âm thanh:** biểu tượng loa bật/tắt ở góc trên phải.
 - **Bảng thông tin:**
   - Số dư hiện tại.
@@ -103,7 +115,7 @@
 - Hiện khi `soLanVay = 3` và số dư về 0. Tải lại trang vẫn ở màn hình này.
 - Nội dung chính (nổi bật, cỡ chữ lớn), ví dụ ván thua đầu tiên:
 
-  > **Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ.**
+  > **Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)**
 
 - Thống kê ván: tổng số lượt chơi, số lượt thắng, số lượt thua; và số ván đã thua.
 - Dòng chú thích nhỏ bên dưới: *"Đây là trò chơi giải trí, tiền trong game là tiền ảo."*
@@ -122,7 +134,10 @@
 Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sau:
 
 ### Chức năng
-- [ ] Mở file `index.html` trên trình duyệt là chơi được, không cần cài đặt hay server.
+- [ ] Mở địa chỉ GitHub Pages của game là chơi được sau khi đăng nhập Google; không cần cài đặt.
+- [ ] Chưa đăng nhập thì không thấy màn hình chơi; đăng xuất quay về màn hình đăng nhập.
+- [ ] Hai tài khoản khác nhau có tiến độ và nợ riêng; một tài khoản đăng nhập trên thiết bị khác thấy đúng tiến độ của mình.
+- [ ] Người chơi không đọc hay sửa được dữ liệu của tài khoản khác, và không tự sửa được số dư / nợ của chính mình (chỉ thay đổi qua hàm SQL của game).
 - [ ] Số dư khởi điểm hiển thị đúng 1.000.000 đ.
 - [ ] Người chơi chọn được Sấp hoặc Ngửa; không tung được khi chưa chọn.
 - [ ] Tỉ lệ thắng đúng bảng độ khó: mô phỏng 10.000 lượt ở mỗi mốc, tỉ lệ thắng lệch không quá ±2% so với bảng.
@@ -132,13 +147,14 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 - [ ] Không bấm tung liên tiếp được trong lúc đồng xu đang xoay.
 - [ ] Số dư về 0 → hiện hộp thoại vay; ba lần vay lần lượt cộng 3.000.000 đ, 5.000.000 đ, 10.000.000 đ và tăng bộ đếm vay.
 - [ ] Không vay được quá 3 lần.
-- [ ] Sau lần vay thứ 3, khi số dư lại về 0 → hiện màn hình kết quả với đúng câu: "Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ."
+- [ ] Sau lần vay thứ 3, khi số dư lại về 0 → hiện màn hình kết quả với đúng câu: "Bạn nợ số tiền là 18.000.000 đ, vui lòng chuyển khoản vào số tài khoản ACB 99995886 để trả nợ. (Nợ ảo trong game, không cần chuyển tiền thật.)"
 - [ ] Số dư không bao giờ hiển thị giá trị âm.
 - [ ] Nút **Chơi lại** bắt đầu ván mới với 1.000.000 đ và 0/3 lần vay, nhưng giữ nợ cũ.
 - [ ] Thua ván thứ hai → X = 36.000.000 đ (nợ cộng dồn).
-- [ ] Tải lại trang (khi đang chơi, đang chờ vay, hoặc ở màn hình nợ) → quay về đúng trạng thái trước đó.
+- [ ] Tải lại trang hoặc đăng nhập lại (khi đang chơi, đang chờ vay, hoặc ở màn hình nợ) → quay về đúng trạng thái trước đó.
+- [ ] Mất kết nối khi tung xu → báo lỗi, không mất tiền oan; tải lại thấy đúng trạng thái trên máy chủ.
 - [ ] Tải lại trang khi xu đang xoay không né được lượt thua.
-- [ ] Dữ liệu lưu bị hỏng → game tạo ván mới, không bị lỗi.
+- [ ] Máy chủ từ chối mọi dữ liệu sai ràng buộc (số dư âm, nợ sai công thức…).
 - [ ] Có âm thanh khi tung, thắng, thua; nút tắt âm thanh hoạt động và được nhớ sau khi tải lại.
 
 ### Giao diện
@@ -151,13 +167,15 @@ Game được coi là hoàn thành khi đáp ứng tất cả các tiêu chí sa
 ### Kỹ thuật
 - [ ] Không có lỗi trong Console của trình duyệt.
 - [ ] Các hằng số (số dư đầu, mức cược, mức vay, số lần vay tối đa, số tài khoản) được khai báo tập trung, dễ thay đổi.
+- [ ] Không có khoá bí mật nào (service role key, client secret của Google) nằm trong repo; trong code trình duyệt chỉ có URL và anon key của Supabase.
 
 ---
 
 ## 6. Ngoài phạm vi (chưa làm)
 
-- Đăng nhập, tài khoản người dùng, máy chủ, bảng xếp hạng.
+- Đăng nhập bằng email/mật khẩu hoặc mạng xã hội khác Google; chơi khi chưa đăng nhập.
+- Bảng xếp hạng.
 - Nút dừng / chốt kết quả giữa ván.
 - Cho phép chọn mức cược khác 500.000 đ.
 - Trả nợ bằng tiền thắng trong game; xoá nợ từ trong game.
-- Đồng bộ tiến độ giữa nhiều trình duyệt hoặc thiết bị.
+- Xoá tài khoản từ trong game.

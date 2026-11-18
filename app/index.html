@@ -12,17 +12,36 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <p id="dai-cuc-bo" class="local-banner" hidden>Chế độ cục bộ — chưa cấu hình Supabase, tiến độ chỉ lưu trên trình duyệt này.</p>
+
   <div id="game-root" class="app">
     <header class="topbar">
       <span class="logo">RichVip</span>
-      <button id="btn-am-thanh" class="icon-btn" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
-        <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
-        <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16.5 9.5l5 5m0-5l-5 5"/></svg>
-      </button>
+      <div class="topbar-right">
+        <div id="khu-nguoi-choi" class="user" hidden>
+          <span id="ten-nguoi-choi" class="user-name"></span>
+          <button type="button" id="btn-dang-xuat" class="btn btn-ghost btn-sm">Đăng xuất</button>
+        </div>
+        <button id="btn-am-thanh" class="icon-btn" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+          <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="wave" d="M16.5 9.5l5 5m0-5l-5 5"/></svg>
+        </button>
+      </div>
     </header>
 
+    <!-- S-00 · Màn hình đăng nhập -->
+    <section id="man-dang-nhap" class="screen login" hidden aria-labelledby="dn-tieu-de">
+      <div class="card card-gold login-card">
+        <h1 id="dn-tieu-de" class="login-title" tabindex="-1">RichVip</h1>
+        <p class="login-lead">Đoán Sấp / Ngửa — đăng nhập để chơi và giữ tiến độ trên mọi thiết bị.</p>
+        <p id="dn-loi" class="login-error" role="alert" hidden></p>
+        <button type="button" id="btn-dang-nhap" class="btn btn-primary btn-lg btn-block">Đăng nhập bằng Google</button>
+        <p class="disclaimer">Đây là trò chơi giải trí, tiền trong game là tiền ảo.</p>
+      </div>
+    </section>
+
     <!-- S-01 · Màn hình chơi -->
-    <main id="man-choi" class="screen play">
+    <main id="man-choi" class="screen play" hidden>
       <section class="col-main" aria-label="Bàn chơi">
         <div class="card card-gold balance">
           <span class="label">Số dư</span>
@@ -91,6 +110,8 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
+  <script src="may-chu.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
